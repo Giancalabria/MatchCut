@@ -1,0 +1,210 @@
+{
+  "common": {
+    "appName": "Match Cut",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "back": "Volver",
+    "continue": "Continuar",
+    "comingSoon": "Próximamente"
+  },
+  "tabs": {
+    "explore": "Explorar",
+    "rooms": "Salas",
+    "vault": "La Bóveda"
+  },
+  "auth": {
+    "title": "Match Cut",
+    "subtitle": "Descubrí y acordá qué ver, sin discusiones interminables.",
+    "email": "Email",
+    "password": "Contraseña",
+    "signIn": "Iniciar sesión",
+    "signUp": "Crear cuenta",
+    "needAccount": "¿No tenés cuenta? Registrate",
+    "haveAccount": "¿Ya tenés cuenta? Iniciá sesión",
+    "or": "o",
+    "continueGoogle": "Continuar con Google",
+    "continueApple": "Continuar con Apple",
+    "enterApp": "Entrar sin cuenta (modo local)",
+    "supabaseMissing": "Falta configurar Supabase en el .env. Podés explorar la UI en modo local.",
+    "unknownError": "Algo salió mal. Intentá de nuevo."
+  },
+  "onboarding": {
+    "regionTitle": "¿En qué país estás?",
+    "regionSubtitle": "Los catálogos de streaming cambian por región.",
+    "platformsTitle": "¿Qué plataformas pagás?",
+    "platformsSubtitle": "Vamos a priorizar lo que podés ver ahora.",
+    "discardTitle": "¿Qué hacemos con los “no”?",
+    "discardSubtitle": "Elegí cómo volver a sugerirte títulos que descartaste.",
+    "policy": {
+      "restore_only": "Hasta que yo restaure",
+      "session": "Solo por esta sesión / día",
+      "cooldown": "Cooldown (vuelven después de X días)"
+    },
+    "cooldownDays": "Días de cooldown",
+    "days": "{{count}} días",
+    "customDays": "Personalizado (días)",
+    "invalidCooldown": "Ingresá un número de días válido.",
+    "finish": "Empezar a explorar"
+  },
+  "regions": {
+    "AR": "Argentina",
+    "MX": "México",
+    "ES": "España",
+    "US": "Estados Unidos",
+    "CO": "Colombia",
+    "CL": "Chile",
+    "PE": "Perú",
+    "UY": "Uruguay",
+    "BR": "Brasil",
+    "GB": "Reino Unido"
+  },
+  "platforms": {
+    "netflix": "Netflix",
+    "prime": "Prime Video",
+    "disney": "Disney+",
+    "max": "Max",
+    "apple": "Apple TV+",
+    "paramount": "Paramount+",
+    "hulu": "Hulu",
+    "peacock": "Peacock",
+    "crunchyroll": "Crunchyroll",
+    "mubi": "MUBI"
+  },
+  "explore": {
+    "title": "Explorar",
+    "placeholder": "Acá va a vivir el mazo de swipes.",
+    "hint": "Deslizá derecha para guardar, izquierda para descartar, arriba si ya la viste.",
+    "loading": "Buscando títulos...",
+    "emptyTitle": "No hay cartas por ahora",
+    "emptyBody": "Probá actualizar o ajustar tus plataformas en La Bóveda.",
+    "refresh": "Actualizar",
+    "unratedBadge": "{{count}} sin calificar",
+    "swipeLike": "Derecha: watchlist",
+    "swipeNope": "Izquierda: no",
+    "swipeSeen": "Arriba: vista",
+    "filtersActive": "Filtros activos — el mazo prioriza tu mood"
+  },
+  "filters": {
+    "title": "Filtros de mood",
+    "subtitle": "Opcional: acotá el catálogo antes de swipar.",
+    "apply": "Aplicar",
+    "clear": "Limpiar",
+    "mediaType": "Tipo",
+    "movies": "Películas",
+    "series": "Series",
+    "genre": "Género",
+    "anyGenre": "Cualquiera",
+    "maxRuntime": "Duración máxima",
+    "anyRuntime": "Sin límite",
+    "minutes": "≤ {{count}} min",
+    "similarTo": "Parecida a",
+    "seedPlaceholder": "Buscar título de referencia…",
+    "searching": "Buscando…"
+  },
+  "search": {
+    "title": "Buscar",
+    "subtitle": "Encontrá un título o explorá con los mismos filtros del mood.",
+    "placeholder": "Nombre de película o serie…",
+    "optionalFilters": "Filtros opcionales",
+    "submit": "Buscar",
+    "noResults": "No encontramos resultados con esos criterios.",
+    "needQueryOrFilter": "Escribí un título o elegí al menos un filtro."
+  },
+  "genres": {
+    "action": "Acción",
+    "adventure": "Aventura",
+    "animation": "Animación",
+    "comedy": "Comedia",
+    "crime": "Crimen",
+    "documentary": "Documental",
+    "drama": "Drama",
+    "family": "Familia",
+    "fantasy": "Fantasía",
+    "horror": "Terror",
+    "mystery": "Misterio",
+    "romance": "Romance",
+    "scifi": "Ciencia ficción",
+    "thriller": "Suspenso",
+    "actionAdventure": "Acción y aventura",
+    "scifiFantasy": "Ciencia ficción y fantasía"
+  },
+  "rooms": {
+    "title": "Salas",
+    "placeholder": "Creá o unite a salas de match acá.",
+    "subtitle": "Creá una sala o unite con un código para encontrar matches asincrónicos.",
+    "inviteCode": "Código",
+    "join": "Unirme",
+    "create": "Crear sala",
+    "roomName": "Sala {{code}}",
+    "notFound": "No encontramos esa sala.",
+    "catalogOwner": "Catálogo base",
+    "host": "Host",
+    "member": "Miembro",
+    "emptyDeck": "No hay cartas listas para esta sala.",
+    "matches": "Matches",
+    "noMatches": "Todavía no hay matches.",
+    "strategy": {
+      "intersection": "Solo plataformas en común",
+      "catalog_owner": "Catálogo del anfitrión",
+      "union": "Cualquier plataforma del grupo",
+      "full": "Catálogo completo"
+    }
+  },
+  "vault": {
+    "title": "La Bóveda",
+    "placeholder": "Watchlist, descartes y diario van a vivir acá.",
+    "subtitle": "Tu watchlist, descartes y diario en un solo lugar.",
+    "settings": "Ajustes",
+    "empty": "Nada por acá todavía.",
+    "restore": "Restaurar",
+    "moveToWatchlist": "Mover a watchlist",
+    "ratingValue": "{{rating}}/10",
+    "segments": {
+      "watchlist": "Watchlist",
+      "discards": "Descartes",
+      "diary": "Diario"
+    },
+    "action": {
+      "like": "En watchlist",
+      "nope": "Descartada",
+      "seen": "Vista sin calificar"
+    }
+  },
+  "detail": {
+    "synopsis": "Sinopsis",
+    "noSynopsis": "No hay sinopsis disponible.",
+    "trailer": "Trailer",
+    "providers": "Dónde ver",
+    "noProviders": "No encontramos disponibilidad para tu región.",
+    "cast": "Elenco"
+  },
+  "match": {
+    "title": "¡Match!",
+    "body": "Todas las personas de la sala votaron que sí."
+  },
+  "justwatch": {
+    "attribution": "Disponibilidad provista por JustWatch vía TMDB"
+  },
+  "errors": {
+    "generic": "Algo salió mal. Intentá de nuevo.",
+    "missingTitle": "Falta el título solicitado."
+  },
+  "settings": {
+    "title": "Ajustes",
+    "language": "Idioma",
+    "languageEs": "Español",
+    "languageEn": "Inglés",
+    "theme": "Tema",
+    "themeLight": "Claro",
+    "themeDark": "Oscuro",
+    "themeSystem": "Sistema",
+    "signOut": "Cerrar sesión",
+    "account": "Cuenta y catálogo",
+    "editRegion": "Cambiar región",
+    "editPlatforms": "Cambiar plataformas",
+    "editDiscard": "Cambiar política de descartes",
+    "regionValue": "Región: {{region}}",
+    "platformsValue": "{{count}} plataformas",
+    "discardValue": "Descartes: {{policy}}"
+  }
+}

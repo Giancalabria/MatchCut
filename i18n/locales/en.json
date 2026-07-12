@@ -1,0 +1,210 @@
+{
+  "common": {
+    "appName": "Match Cut",
+    "cancel": "Cancel",
+    "save": "Save",
+    "back": "Back",
+    "continue": "Continue",
+    "comingSoon": "Coming soon"
+  },
+  "tabs": {
+    "explore": "Explore",
+    "rooms": "Rooms",
+    "vault": "Vault"
+  },
+  "auth": {
+    "title": "Match Cut",
+    "subtitle": "Discover and agree on what to watch — without the endless debate.",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signUp": "Create account",
+    "needAccount": "Need an account? Sign up",
+    "haveAccount": "Already have an account? Sign in",
+    "or": "or",
+    "continueGoogle": "Continue with Google",
+    "continueApple": "Continue with Apple",
+    "enterApp": "Enter without account (local mode)",
+    "supabaseMissing": "Supabase is not configured in .env. You can still explore the UI locally.",
+    "unknownError": "Something went wrong. Please try again."
+  },
+  "onboarding": {
+    "regionTitle": "Where are you watching from?",
+    "regionSubtitle": "Streaming catalogs change by country.",
+    "platformsTitle": "Which services do you pay for?",
+    "platformsSubtitle": "We'll prioritize titles you can actually watch.",
+    "discardTitle": "What should we do with “nopes”?",
+    "discardSubtitle": "Choose when discarded titles can show up again.",
+    "policy": {
+      "restore_only": "Until I restore them",
+      "session": "Only for this session / day",
+      "cooldown": "Cooldown (come back after X days)"
+    },
+    "cooldownDays": "Cooldown days",
+    "days": "{{count}} days",
+    "customDays": "Custom (days)",
+    "invalidCooldown": "Enter a valid number of days.",
+    "finish": "Start exploring"
+  },
+  "regions": {
+    "AR": "Argentina",
+    "MX": "Mexico",
+    "ES": "Spain",
+    "US": "United States",
+    "CO": "Colombia",
+    "CL": "Chile",
+    "PE": "Peru",
+    "UY": "Uruguay",
+    "BR": "Brazil",
+    "GB": "United Kingdom"
+  },
+  "platforms": {
+    "netflix": "Netflix",
+    "prime": "Prime Video",
+    "disney": "Disney+",
+    "max": "Max",
+    "apple": "Apple TV+",
+    "paramount": "Paramount+",
+    "hulu": "Hulu",
+    "peacock": "Peacock",
+    "crunchyroll": "Crunchyroll",
+    "mubi": "MUBI"
+  },
+  "explore": {
+    "title": "Explore",
+    "placeholder": "Your swipe deck will live here.",
+    "hint": "Swipe right to save, left to discard, up if you've already watched.",
+    "loading": "Finding titles...",
+    "emptyTitle": "No cards right now",
+    "emptyBody": "Try refreshing or adjusting your platforms in Vault.",
+    "refresh": "Refresh",
+    "unratedBadge": "{{count}} unrated",
+    "swipeLike": "Right: watchlist",
+    "swipeNope": "Left: nope",
+    "swipeSeen": "Up: seen",
+    "filtersActive": "Filters active — deck prioritizes your mood"
+  },
+  "filters": {
+    "title": "Mood filters",
+    "subtitle": "Optional: narrow the catalog before swiping.",
+    "apply": "Apply",
+    "clear": "Clear",
+    "mediaType": "Type",
+    "movies": "Movies",
+    "series": "Series",
+    "genre": "Genre",
+    "anyGenre": "Any",
+    "maxRuntime": "Max runtime",
+    "anyRuntime": "No limit",
+    "minutes": "≤ {{count}} min",
+    "similarTo": "Similar to",
+    "seedPlaceholder": "Search a reference title…",
+    "searching": "Searching…"
+  },
+  "search": {
+    "title": "Search",
+    "subtitle": "Find a title or browse with the same mood filters.",
+    "placeholder": "Movie or series name…",
+    "optionalFilters": "Optional filters",
+    "submit": "Search",
+    "noResults": "No results matched those criteria.",
+    "needQueryOrFilter": "Enter a title or pick at least one filter."
+  },
+  "genres": {
+    "action": "Action",
+    "adventure": "Adventure",
+    "animation": "Animation",
+    "comedy": "Comedy",
+    "crime": "Crime",
+    "documentary": "Documentary",
+    "drama": "Drama",
+    "family": "Family",
+    "fantasy": "Fantasy",
+    "horror": "Horror",
+    "mystery": "Mystery",
+    "romance": "Romance",
+    "scifi": "Science fiction",
+    "thriller": "Thriller",
+    "actionAdventure": "Action & adventure",
+    "scifiFantasy": "Sci-fi & fantasy"
+  },
+  "rooms": {
+    "title": "Rooms",
+    "placeholder": "Create or join match rooms here.",
+    "subtitle": "Create a room or join with a code to find async matches.",
+    "inviteCode": "Code",
+    "join": "Join",
+    "create": "Create room",
+    "roomName": "Room {{code}}",
+    "notFound": "We could not find that room.",
+    "catalogOwner": "Catalog owner",
+    "host": "Host",
+    "member": "Member",
+    "emptyDeck": "No cards are ready for this room.",
+    "matches": "Matches",
+    "noMatches": "No matches yet.",
+    "strategy": {
+      "intersection": "Only shared platforms",
+      "catalog_owner": "Host catalog",
+      "union": "Any group platform",
+      "full": "Full catalog"
+    }
+  },
+  "vault": {
+    "title": "Vault",
+    "placeholder": "Watchlist, discards, and diary will live here.",
+    "subtitle": "Your watchlist, discards, and diary in one place.",
+    "settings": "Settings",
+    "empty": "Nothing here yet.",
+    "restore": "Restore",
+    "moveToWatchlist": "Move to watchlist",
+    "ratingValue": "{{rating}}/10",
+    "segments": {
+      "watchlist": "Watchlist",
+      "discards": "Discards",
+      "diary": "Diary"
+    },
+    "action": {
+      "like": "In watchlist",
+      "nope": "Discarded",
+      "seen": "Seen but unrated"
+    }
+  },
+  "detail": {
+    "synopsis": "Synopsis",
+    "noSynopsis": "No synopsis is available.",
+    "trailer": "Trailer",
+    "providers": "Where to watch",
+    "noProviders": "No availability found for your region.",
+    "cast": "Cast"
+  },
+  "match": {
+    "title": "Match!",
+    "body": "Everyone in the room voted yes."
+  },
+  "justwatch": {
+    "attribution": "Availability provided by JustWatch through TMDB"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "missingTitle": "The requested title is missing."
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "languageEs": "Spanish",
+    "languageEn": "English",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "signOut": "Sign out",
+    "account": "Account & catalog",
+    "editRegion": "Change region",
+    "editPlatforms": "Change platforms",
+    "editDiscard": "Change discard policy",
+    "regionValue": "Region: {{region}}",
+    "platformsValue": "{{count}} platforms",
+    "discardValue": "Discards: {{policy}}"
+  }
+}
