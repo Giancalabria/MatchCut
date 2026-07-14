@@ -1,7 +1,16 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/providers/AuthProvider';
 import { useThemeColors } from '@/providers/PreferencesProvider';
@@ -12,6 +21,7 @@ import {
   type PlatformStrategy,
   type Room,
 } from '@/src/features/rooms/api';
+import { AppIcon, AppText, Button } from '@/src/ui';
 import { typography } from '@/theme/typography';
 
 const STRATEGIES: PlatformStrategy[] = ['intersection', 'catalog_owner', 'union', 'full'];
@@ -19,6 +29,7 @@ const STRATEGIES: PlatformStrategy[] = ['intersection', 'catalog_owner', 'union'
 export default function RoomsScreen() {
   const { t } = useTranslation();
   const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
   const { isConfigured } = useAuth();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(false);
@@ -81,13 +92,13 @@ export default function RoomsScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={[styles.root, { backgroundColor: colors.bg }]}>
-      <Text style={[styles.title, { color: colors.ink, fontFamily: typography.display }]}>
-        {t('rooms.title')}
-      </Text>
-      <Text style={[styles.body, { color: colors.inkMuted, fontFamily: typography.body }]}>
-        {t('rooms.subtitle')}
-      </Text>
+    <ScrollView
+      contentContainerStyle={[
+        styles.root,
+        { backgroundColor: colors.bg, paddingTop: Math.max(insets.top, 12) },
+      ]}
+    >
+      <AppText variant="display">{t('rooms.title')}</AppText>
 
       <View style={styles.joinRow}>
         <TextInput
@@ -96,21 +107,27 @@ export default function RoomsScreen() {
           placeholder={t('rooms.inviteCode')}
           placeholderTextColor={colors.inkMuted}
           autoCapitalize="characters"
-          style={[styles.input, { borderColor: colors.line, color: colors.ink, backgroundColor: colors.surface, fontFamily: typography.body }]}
+          style={[
+            styles.input,
+            {
+              borderColor: colors.line,
+              color: colors.ink,
+              backgroundColor: colors.surface,
+              fontFamily: typography.body,
+            },
+          ]}
         />
-        <Pressable onPress={handleJoin} style={[styles.primaryButton, { backgroundColor: colors.accent }]}>
-          <Text style={[styles.primaryText, { fontFamily: typography.bodyBold }]}>{t('rooms.join')}</Text>
-        </Pressable>
+        <Button label={t('rooms.join')} onPress={() => void handleJoin()} style={styles.joinButton} />
       </View>
 
-      <Pressable onPress={() => setModalOpen(true)} style={[styles.createButton, { borderColor: colors.accent }]}>
-        <Text style={[styles.createText, { color: colors.accent, fontFamily: typography.bodyBold }]}>
-          {t('rooms.create')}
-        </Text>
-      </Pressable>
+      <Button label={t('rooms.create')} variant="secondary" onPress={() => setModalOpen(true)} />
 
-      {loading ? <ActivityIndicator color={colors.accent} /> : null}
-      {error ? <Text style={[styles.error, { color: colors.nope, fontFamily: typography.body }]}>{error}</Text> : null}
+      {loading ? <ActivityIndicator color={colors.cta} /> : null}
+      {error ? (
+        <AppText color={colors.nope} variant="caption">
+          {error}
+        </AppText>
+      ) : null}
 
       {rooms.map((room) => (
         <Pressable
@@ -119,43 +136,46 @@ export default function RoomsScreen() {
           style={[styles.roomCard, { backgroundColor: colors.surface, borderColor: colors.line }]}
         >
           <View style={{ flex: 1 }}>
-            <Text style={[styles.roomTitle, { color: colors.ink, fontFamily: typography.bodyBold }]}>
+            <AppText style={{ fontFamily: typography.bodyBold, fontSize: 17 }}>
               {t('rooms.roomName', { code: room.invite_code })}
-            </Text>
-            <Text style={[styles.roomMeta, { color: colors.inkMuted, fontFamily: typography.body }]}>
+            </AppText>
+            <AppText variant="caption" muted>
               {t(`rooms.strategy.${room.platform_strategy}`)}
-            </Text>
+            </AppText>
           </View>
-          <Text style={{ color: colors.accent, fontFamily: typography.bodyBold }}>›</Text>
+          <AppIcon name="chevronForward" size={18} color={colors.cta} />
         </Pressable>
       ))}
 
       <Modal visible={modalOpen} transparent animationType="slide" onRequestClose={() => setModalOpen(false)}>
         <View style={styles.modalBackdrop}>
           <View style={[styles.modal, { backgroundColor: colors.surface }]}>
-            <Text style={[styles.modalTitle, { color: colors.ink, fontFamily: typography.display }]}>
-              {t('rooms.create')}
-            </Text>
+            <AppText variant="title">{t('rooms.create')}</AppText>
             {STRATEGIES.map((item) => (
               <Pressable
                 key={item}
                 onPress={() => setStrategy(item)}
-                style={[styles.strategy, { borderColor: strategy === item ? colors.accent : colors.line }]}
+                style={[
+                  styles.strategy,
+                  {
+                    borderColor: strategy === item ? colors.cta : colors.line,
+                    backgroundColor: strategy === item ? colors.accentSoft : 'transparent',
+                  },
+                ]}
               >
-                <Text style={[styles.strategyText, { color: colors.ink, fontFamily: typography.bodyBold }]}>
+                <AppText style={{ fontFamily: typography.bodyBold, fontSize: 14 }}>
                   {t(`rooms.strategy.${item}`)}
-                </Text>
+                </AppText>
               </Pressable>
             ))}
             <View style={styles.modalActions}>
-              <Pressable onPress={() => setModalOpen(false)} style={styles.modalAction}>
-                <Text style={[styles.modalActionText, { color: colors.inkMuted, fontFamily: typography.bodyBold }]}>
-                  {t('common.cancel')}
-                </Text>
-              </Pressable>
-              <Pressable onPress={handleCreate} style={[styles.modalAction, { backgroundColor: colors.accent }]}>
-                <Text style={[styles.primaryText, { fontFamily: typography.bodyBold }]}>{t('rooms.create')}</Text>
-              </Pressable>
+              <Button
+                label={t('common.cancel')}
+                variant="ghost"
+                onPress={() => setModalOpen(false)}
+                style={{ flex: 1 }}
+              />
+              <Button label={t('rooms.create')} onPress={() => void handleCreate()} style={{ flex: 1 }} />
             </View>
           </View>
         </View>
@@ -167,27 +187,23 @@ export default function RoomsScreen() {
 const styles = StyleSheet.create({
   root: {
     flexGrow: 1,
-    padding: 24,
+    paddingHorizontal: 24,
     gap: 12,
+    paddingBottom: 40,
   },
-  title: { fontSize: 28 },
-  body: { fontSize: 16, lineHeight: 22 },
-  joinRow: { flexDirection: 'row', gap: 8 },
-  input: { flex: 1, borderWidth: 1, borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12 },
-  primaryButton: { borderRadius: 14, paddingHorizontal: 16, justifyContent: 'center' },
-  primaryText: { color: '#FFFFFF', fontSize: 14 },
-  createButton: { borderWidth: 1.5, borderRadius: 14, paddingVertical: 13, alignItems: 'center' },
-  createText: { fontSize: 15 },
-  error: { fontSize: 14 },
-  roomCard: { borderWidth: 1, borderRadius: 18, padding: 16, flexDirection: 'row', alignItems: 'center', gap: 8 },
-  roomTitle: { fontSize: 17 },
-  roomMeta: { fontSize: 13, marginTop: 3 },
-  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },
-  modal: { borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, gap: 12 },
-  modalTitle: { fontSize: 24 },
-  strategy: { borderWidth: 1.5, borderRadius: 14, padding: 14 },
-  strategyText: { fontSize: 14 },
+  joinRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
+  input: { flex: 1, borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12 },
+  joinButton: { minWidth: 96 },
+  roomCard: {
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'flex-end' },
+  modal: { borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, gap: 12 },
+  strategy: { borderWidth: 1.5, borderRadius: 12, padding: 14 },
   modalActions: { flexDirection: 'row', gap: 10, marginTop: 8 },
-  modalAction: { flex: 1, borderRadius: 14, paddingVertical: 13, alignItems: 'center' },
-  modalActionText: { fontSize: 14 },
 });

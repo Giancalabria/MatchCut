@@ -1,368 +1,287 @@
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/providers/AuthProvider';
-import { usePreferences, useThemeColors } from '@/providers/PreferencesProvider';
-import type { AppLanguage } from '@/i18n';
-import {
-  listByAction,
-  restoreNope,
-  setRating,
-  upsertInteraction,
-  type TitleInteraction,
-} from '@/src/features/interactions/api';
+import { useInteractions } from '@/providers/InteractionsProvider';
+import { useThemeColors } from '@/providers/PreferencesProvider';
+import type { TitleInteraction } from '@/src/features/interactions/api';
+import { TasteDashboardPanel } from '@/src/features/taste/TasteDashboardPanel';
+import { BulkRatingSession } from '@/src/features/vault/BulkRatingSession';
 import { TitleCollection } from '@/src/features/vault/TitleCollection';
-import type { ThemeMode } from '@/theme/tokens';
+import { AppText, Button, IconButton } from '@/src/ui';
 import { typography } from '@/theme/typography';
 
-type Segment = 'watchlist' | 'discards' | 'diary';
+type Segment = 'taste' | 'watchlist' | 'discards' | 'diary';
 
-function OptionRow({
-  label,
-  selected,
-  onPress,
-}: {
-  label: string;
-  selected: boolean;
-  onPress: () => void;
-}) {
-  const colors = useThemeColors();
+const SEGMENTS: Segment[] = ['taste', 'watchlist', 'discards', 'diary'];
+const EMPTY: TitleInteraction[] = [];
 
-  return (
-    <Pressable
-      onPress={onPress}
-      style={[
-        styles.option,
-        {
-          backgroundColor: colors.surface,
-          borderColor: selected ? colors.accent : colors.line,
-        },
-      ]}
-    >
-      <Text
-        style={{
-          color: colors.ink,
-          fontFamily: selected ? typography.bodyBold : typography.body,
-          fontSize: 15,
-        }}
-      >
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
-
-function LinkRow({ label, detail, onPress }: { label: string; detail?: string; onPress: () => void }) {
-  const colors = useThemeColors();
-
-  return (
-    <Pressable
-      onPress={onPress}
-      style={[styles.linkRow, { backgroundColor: colors.surface, borderColor: colors.line }]}
-    >
-      <View style={{ flex: 1, gap: 2 }}>
-        <Text style={{ color: colors.ink, fontFamily: typography.bodyMedium, fontSize: 15 }}>
-          {label}
-        </Text>
-        {detail ? (
-          <Text style={{ color: colors.inkMuted, fontFamily: typography.body, fontSize: 13 }}>
-            {detail}
-          </Text>
-        ) : null}
-      </View>
-      <Text style={{ color: colors.accent, fontFamily: typography.bodyBold }}>›</Text>
-    </Pressable>
-  );
+function parseSegment(value: string | string[] | undefined): Segment | null {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (raw === 'taste' || raw === 'watchlist' || raw === 'discards' || raw === 'diary') {
+    return raw;
+  }
+  return null;
 }
 
 export default function VaultScreen() {
   const { t } = useTranslation();
   const colors = useThemeColors();
-  const { language, setLanguage, themeMode, setThemeMode } = usePreferences();
-  const { user, profile, isConfigured, signOut } = useAuth();
-  const [signingOut, setSigningOut] = useState(false);
-  const [segment, setSegment] = useState<Segment>('watchlist');
-  const [likes, setLikes] = useState<TitleInteraction[]>([]);
-  const [nopes, setNopes] = useState<TitleInteraction[]>([]);
-  const [seens, setSeens] = useState<TitleInteraction[]>([]);
-  const [loadingVault, setLoadingVault] = useState(false);
+  const insets = useSafeAreaInsets();
+  const params = useLocalSearchParams<{ openBulk?: string; segment?: string }>();
+  const { isConfigured } = useAuth();
+  const { ready, listByAction, restoreNope, upsert, setRating } = useInteractions();
+  const [segment, setSegment] = useState<Segment>('taste');
+  const [visited, setVisited] = useState<Record<Segment, boolean>>({
+    taste: true,
+    watchlist: false,
+    discards: false,
+    diary: false,
+  });
+  const [bulkOpen, setBulkOpen] = useState(false);
 
-  const languages: { id: AppLanguage; label: string }[] = [
-    { id: 'es', label: t('settings.languageEs') },
-    { id: 'en', label: t('settings.languageEn') },
-  ];
+  useEffect(() => {
+    setVisited((current) => (current[segment] ? current : { ...current, [segment]: true }));
+  }, [segment]);
 
-  const themes: { id: ThemeMode; label: string }[] = [
-    { id: 'light', label: t('settings.themeLight') },
-    { id: 'dark', label: t('settings.themeDark') },
-    { id: 'system', label: t('settings.themeSystem') },
-  ];
+  useEffect(() => {
+    const nextSegment = parseSegment(params.segment);
+    if (nextSegment) {
+      setSegment(nextSegment);
+    }
+    const openBulk = Array.isArray(params.openBulk) ? params.openBulk[0] : params.openBulk;
+    if (openBulk === '1') {
+      setSegment('diary');
+      setBulkOpen(true);
+      router.setParams({ openBulk: undefined, segment: undefined });
+    }
+  }, [params.openBulk, params.segment]);
 
-  const regionLabel = profile?.region
-    ? t(`regions.${profile.region}` as 'regions.AR')
-    : '—';
+  const likes = isConfigured ? listByAction('like') : EMPTY;
+  const nopes = isConfigured ? listByAction('nope') : EMPTY;
+  const seens = isConfigured ? listByAction('seen') : EMPTY;
 
   const sortedDiary = useMemo(
     () => [...seens].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)),
     [seens],
   );
 
-  async function loadVault() {
-    if (!isConfigured) {
-      setLikes([]);
-      setNopes([]);
-      setSeens([]);
+  const unratedSeens = useMemo(() => seens.filter((item) => item.rating == null), [seens]);
+
+  function openRandomWatchlist() {
+    if (likes.length === 0) {
       return;
     }
-
-    setLoadingVault(true);
-    try {
-      const [nextLikes, nextNopes, nextSeens] = await Promise.all([
-        listByAction('like'),
-        listByAction('nope'),
-        listByAction('seen'),
-      ]);
-      setLikes(nextLikes);
-      setNopes(nextNopes);
-      setSeens(nextSeens);
-    } finally {
-      setLoadingVault(false);
-    }
-  }
-
-  useEffect(() => {
-    void loadVault();
-  }, [isConfigured]);
-
-  async function handleSignOut() {
-    setSigningOut(true);
-    try {
-      await signOut();
-      router.replace(isConfigured ? '/(auth)/login' : '/(tabs)/explore');
-    } finally {
-      setSigningOut(false);
-    }
+    const pick = likes[Math.floor(Math.random() * likes.length)];
+    router.push({
+      pathname: '/title/[mediaType]/[id]',
+      params: { mediaType: pick.media_type, id: String(pick.tmdb_id) },
+    });
   }
 
   return (
-    <ScrollView contentContainerStyle={[styles.root, { backgroundColor: colors.bg }]}>
-      <Text style={[styles.title, { color: colors.ink, fontFamily: typography.display }]}>
-        {t('vault.title')}
-      </Text>
-      <Text style={[styles.body, { color: colors.inkMuted, fontFamily: typography.body }]}>
-        {t('vault.subtitle')}
-      </Text>
+    <View
+      style={[
+        styles.root,
+        { backgroundColor: colors.bg, paddingTop: Math.max(insets.top, 12) },
+      ]}
+    >
+      <View style={styles.headerBlock}>
+        <View style={styles.header}>
+          <AppText variant="display" style={styles.flex}>
+            {t('vault.title')}
+          </AppText>
+          <IconButton
+            name="settings"
+            onPress={() => router.push('/settings' as Href)}
+            accessibilityLabel={t('settings.title')}
+          />
+        </View>
 
-      <View style={[styles.segmentRow, { backgroundColor: colors.surface }]}>
-        {(['watchlist', 'discards', 'diary'] as Segment[]).map((item) => (
-          <Pressable
-            key={item}
-            onPress={() => setSegment(item)}
-            style={[
-              styles.segmentButton,
-              { backgroundColor: segment === item ? colors.accent : 'transparent' },
-            ]}
-          >
-            <Text
+        <View style={[styles.segmentTrack, { backgroundColor: colors.surface }]}>
+          {SEGMENTS.map((item) => (
+            <Pressable
+              key={item}
+              onPress={() => setSegment(item)}
               style={[
-                styles.segmentText,
-                {
-                  color: segment === item ? '#FFFFFF' : colors.inkMuted,
-                  fontFamily: typography.bodyBold,
-                },
+                styles.segmentButton,
+                { backgroundColor: segment === item ? colors.cta : 'transparent' },
               ]}
             >
-              {t(`vault.segments.${item}`)}
-            </Text>
-          </Pressable>
-        ))}
+              <AppText
+                variant="label"
+                color={segment === item ? colors.onAccent : colors.inkMuted}
+                style={styles.segmentLabel}
+                numberOfLines={1}
+              >
+                {t(`vault.segments.${item}`)}
+              </AppText>
+            </Pressable>
+          ))}
+        </View>
+
+        {isConfigured && !ready && segment !== 'taste' ? (
+          <ActivityIndicator color={colors.cta} />
+        ) : null}
+
+        {segment === 'watchlist' && likes.length > 0 ? (
+          <Button label={t('vault.pickRandom')} onPress={openRandomWatchlist} />
+        ) : null}
+
+        {segment === 'diary' && unratedSeens.length > 0 ? (
+          <Button label={t('vault.bulkRateCta')} onPress={() => setBulkOpen(true)} />
+        ) : null}
       </View>
 
-      {loadingVault ? <ActivityIndicator color={colors.accent} /> : null}
+      <View style={styles.listArea}>
+        {visited.taste ? (
+          <View
+            style={[styles.segmentPane, segment !== 'taste' ? styles.segmentPaneHidden : null]}
+            pointerEvents={segment === 'taste' ? 'auto' : 'none'}
+          >
+            <TasteDashboardPanel onOpenDiary={() => setSegment('diary')} />
+          </View>
+        ) : null}
 
-      {segment === 'watchlist' ? (
-        <TitleCollection
-          interactions={likes}
-          actions={{
-            onOpen: (interaction) => router.push({
-              pathname: '/title/[mediaType]/[id]',
-              params: { mediaType: interaction.media_type, id: String(interaction.tmdb_id) },
-            }),
-            onRate: (interaction, rating) => {
-              void setRating(interaction.tmdb_id, interaction.media_type, rating).then(loadVault);
-            },
-          }}
-        />
-      ) : null}
+        {visited.watchlist ? (
+          <View
+            style={[styles.segmentPane, segment !== 'watchlist' ? styles.segmentPaneHidden : null]}
+            pointerEvents={segment === 'watchlist' ? 'auto' : 'none'}
+          >
+            <TitleCollection
+              interactions={likes}
+              hideActionMeta
+              enableFilters
+              showRatingButtons
+              actions={{
+                onOpen: (interaction) =>
+                  router.push({
+                    pathname: '/title/[mediaType]/[id]',
+                    params: { mediaType: interaction.media_type, id: String(interaction.tmdb_id) },
+                  }),
+                onRate: (interaction, rating) => {
+                  void setRating(interaction.tmdb_id, interaction.media_type, rating);
+                },
+              }}
+            />
+          </View>
+        ) : null}
 
-      {segment === 'discards' ? (
-        <TitleCollection
-          interactions={nopes}
-          actions={{
-            onOpen: (interaction) => router.push({
-              pathname: '/title/[mediaType]/[id]',
-              params: { mediaType: interaction.media_type, id: String(interaction.tmdb_id) },
-            }),
-            onRestore: (interaction) => {
-              void restoreNope(interaction.tmdb_id, interaction.media_type).then(loadVault);
-            },
-            onMoveToWatchlist: (interaction) => {
-              void upsertInteraction({
-                tmdb_id: interaction.tmdb_id,
-                media_type: interaction.media_type,
-                action: 'like',
-              }).then(loadVault);
-            },
-          }}
-        />
-      ) : null}
+        {visited.discards ? (
+          <View
+            style={[styles.segmentPane, segment !== 'discards' ? styles.segmentPaneHidden : null]}
+            pointerEvents={segment === 'discards' ? 'auto' : 'none'}
+          >
+            <TitleCollection
+              interactions={nopes}
+              hideActionMeta
+              enableFilters
+              showRatingButtons
+              actions={{
+                onOpen: (interaction) =>
+                  router.push({
+                    pathname: '/title/[mediaType]/[id]',
+                    params: { mediaType: interaction.media_type, id: String(interaction.tmdb_id) },
+                  }),
+                onRestore: (interaction) => {
+                  void restoreNope(interaction.tmdb_id, interaction.media_type);
+                },
+                onMoveToWatchlist: (interaction) => {
+                  void upsert({
+                    tmdb_id: interaction.tmdb_id,
+                    media_type: interaction.media_type,
+                    action: 'like',
+                  });
+                },
+                onRate: (interaction, rating) => {
+                  void setRating(interaction.tmdb_id, interaction.media_type, rating);
+                },
+              }}
+            />
+          </View>
+        ) : null}
 
-      {segment === 'diary' ? (
-        <TitleCollection
-          interactions={sortedDiary}
-          showRatingButtons
-          actions={{
-            onOpen: (interaction) => router.push({
-              pathname: '/title/[mediaType]/[id]',
-              params: { mediaType: interaction.media_type, id: String(interaction.tmdb_id) },
-            }),
-            onRate: (interaction, rating) => {
-              void setRating(interaction.tmdb_id, interaction.media_type, rating).then(loadVault);
-            },
-          }}
-        />
-      ) : null}
-
-      {user?.email ? (
-        <Text style={[styles.email, { color: colors.inkMuted, fontFamily: typography.body }]}>
-          {user.email}
-        </Text>
-      ) : null}
-
-      {isConfigured && profile ? (
-        <>
-          <Text style={[styles.section, { color: colors.ink, fontFamily: typography.bodyBold }]}>
-            {t('settings.account')}
-          </Text>
-          <LinkRow
-            label={t('settings.editRegion')}
-            detail={t('settings.regionValue', { region: regionLabel })}
-            onPress={() => router.push('/(onboarding)/region?edit=1')}
-          />
-          <LinkRow
-            label={t('settings.editPlatforms')}
-            detail={t('settings.platformsValue', { count: profile.platforms?.length ?? 0 })}
-            onPress={() => router.push('/(onboarding)/platforms?edit=1')}
-          />
-          <LinkRow
-            label={t('settings.editDiscard')}
-            detail={t('settings.discardValue', {
-              policy: t(`onboarding.policy.${profile.nope_policy}`),
-            })}
-            onPress={() => router.push('/(onboarding)/discard-policy?edit=1')}
-          />
-        </>
-      ) : null}
-
-      <Text style={[styles.section, { color: colors.ink, fontFamily: typography.bodyBold }]}>
-        {t('settings.title')}
-      </Text>
-
-      <Text style={[styles.label, { color: colors.inkMuted, fontFamily: typography.bodyMedium }]}>
-        {t('settings.language')}
-      </Text>
-      <View style={styles.row}>
-        {languages.map((item) => (
-          <OptionRow
-            key={item.id}
-            label={item.label}
-            selected={language === item.id}
-            onPress={() => setLanguage(item.id)}
-          />
-        ))}
+        {visited.diary ? (
+          <View
+            style={[styles.segmentPane, segment !== 'diary' ? styles.segmentPaneHidden : null]}
+            pointerEvents={segment === 'diary' ? 'auto' : 'none'}
+          >
+            <TitleCollection
+              interactions={sortedDiary}
+              showRatingButtons
+              hideActionMeta
+              enableFilters
+              actions={{
+                onOpen: (interaction) =>
+                  router.push({
+                    pathname: '/title/[mediaType]/[id]',
+                    params: { mediaType: interaction.media_type, id: String(interaction.tmdb_id) },
+                  }),
+                onRate: (interaction, rating) => {
+                  void setRating(interaction.tmdb_id, interaction.media_type, rating);
+                },
+              }}
+            />
+          </View>
+        ) : null}
       </View>
 
-      <Text style={[styles.label, { color: colors.inkMuted, fontFamily: typography.bodyMedium }]}>
-        {t('settings.theme')}
-      </Text>
-      <View style={styles.row}>
-        {themes.map((item) => (
-          <OptionRow
-            key={item.id}
-            label={item.label}
-            selected={themeMode === item.id}
-            onPress={() => setThemeMode(item.id)}
-          />
-        ))}
-      </View>
-
-      {isConfigured ? (
-        <Pressable
-          onPress={handleSignOut}
-          disabled={signingOut}
-          style={[styles.signOut, { borderColor: colors.nope }]}
-        >
-          {signingOut ? (
-            <ActivityIndicator color={colors.nope} />
-          ) : (
-            <Text style={{ color: colors.nope, fontFamily: typography.bodyBold, fontSize: 15 }}>
-              {t('settings.signOut')}
-            </Text>
-          )}
-        </Pressable>
-      ) : null}
-    </ScrollView>
+      <BulkRatingSession
+        visible={bulkOpen}
+        queue={unratedSeens}
+        onClose={() => {
+          setBulkOpen(false);
+        }}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: {
-    flexGrow: 1,
-    padding: 24,
-    gap: 10,
-    paddingBottom: 40,
+    flex: 1,
+    paddingHorizontal: 24,
+    gap: 14,
   },
-  title: { fontSize: 28, marginTop: 8 },
-  body: { fontSize: 16, lineHeight: 22, marginBottom: 8 },
-  email: { fontSize: 14, marginBottom: 8 },
-  section: { fontSize: 18, marginTop: 12 },
-  label: { fontSize: 13, marginTop: 8 },
-  row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  segmentRow: {
+  headerBlock: {
+    gap: 14,
+  },
+  header: {
     flexDirection: 'row',
-    borderRadius: 999,
+    alignItems: 'center',
+    gap: 12,
+  },
+  flex: { flex: 1 },
+  segmentTrack: {
+    flexDirection: 'row',
+    borderRadius: 12,
     padding: 4,
     gap: 4,
   },
   segmentButton: {
     flex: 1,
-    borderRadius: 999,
-    paddingVertical: 9,
-    alignItems: 'center',
-  },
-  segmentText: { fontSize: 12 },
-  option: {
-    borderWidth: 1.5,
     borderRadius: 10,
     paddingVertical: 10,
-    paddingHorizontal: 14,
-  },
-  linkRow: {
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    flexDirection: 'row',
+    paddingHorizontal: 4,
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
   },
-  signOut: {
-    marginTop: 24,
-    borderWidth: 1.5,
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
+  segmentLabel: {
+    fontFamily: typography.bodyBold,
+    textAlign: 'center',
+  },
+  listArea: {
+    flex: 1,
+    minHeight: 0,
+  },
+  segmentPane: {
+    flex: 1,
+    minHeight: 0,
+  },
+  segmentPaneHidden: {
+    display: 'none',
   },
 });

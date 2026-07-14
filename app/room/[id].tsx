@@ -1,84 +1,178 @@
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/providers/AuthProvider';
+import { useInteractions } from '@/providers/InteractionsProvider';
 import { useThemeColors } from '@/providers/PreferencesProvider';
+import { useRoomsLocal } from '@/providers/RoomsLocalProvider';
 import { buildFeed } from '@/src/features/deck/buildFeed';
 import { SwipeDeck } from '@/src/features/deck/SwipeDeck';
 import {
-  castRoomVote,
   getRoom,
-  listMatches,
   listRoomMembers,
   setCatalogOwner,
   type Room,
   type RoomMatch,
   type RoomMember,
 } from '@/src/features/rooms/api';
+import { MatchCelebration } from '@/src/features/rooms/MatchCelebration';
+import { RoomTasteMatch } from '@/src/features/rooms/RoomTasteMatch';
+import { getDetails } from '@/src/features/tmdb/client';
+import { posterUrl } from '@/src/features/tmdb/images';
 import type { MediaItem, MediaType } from '@/src/features/tmdb/types';
+import { AppText, Button, ScreenHeader } from '@/src/ui';
 import { typography } from '@/theme/typography';
 
 function resolveMediaType(item: MediaItem): MediaType {
   return item.media_type === 'tv' ? 'tv' : 'movie';
 }
 
+function itemKey(mediaType: MediaType, tmdbId: number): string {
+  return `${mediaType}:${tmdbId}`;
+}
+
+type MatchRow = {
+  match: RoomMatch;
+  title: string;
+  poster: string | null;
+};
+
 export default function RoomScreen() {
   const { t } = useTranslation();
   const colors = useThemeColors();
-  const { profile } = useAuth();
+  const insets = useSafeAreaInsets();
+  const { profile, isConfigured } = useAuth();
+  const { interactions, ready: interactionsReady, flush } = useInteractions();
+  const { castVote, refreshRoom, getMatches, takeNewMatches } = useRoomsLocal();
   const params = useLocalSearchParams();
   const roomId = Array.isArray(params.id) ? params.id[0] : params.id;
   const [room, setRoom] = useState<Room | null>(null);
   const [members, setMembers] = useState<RoomMember[]>([]);
   const [matches, setMatches] = useState<RoomMatch[]>([]);
+  const [matchRows, setMatchRows] = useState<MatchRow[]>([]);
   const [cards, setCards] = useState<MediaItem[]>([]);
   const [celebration, setCelebration] = useState<RoomMatch | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const applyCelebrationFromPending = useCallback(() => {
+    if (!roomId) {
+      return;
+    }
+    const newcomers = takeNewMatches(roomId);
+    if (newcomers.length > 0) {
+      setCelebration(newcomers[0] ?? null);
+    }
+  }, [roomId, takeNewMatches]);
+
   const loadRoom = useCallback(async () => {
-    if (!roomId || !profile) {
+    if (!roomId || !profile || (isConfigured && !interactionsReady)) {
       return;
     }
 
     setLoading(true);
     setError(null);
     try {
-      const [nextRoom, nextMembers, nextMatches, nextCards] = await Promise.all([
+      const rankingInteractions = isConfigured ? interactions : [];
+      const [nextRoom, nextMembers, localRoom, nextCards] = await Promise.all([
         getRoom(roomId),
         listRoomMembers(roomId),
-        listMatches(roomId),
-        buildFeed(profile, []),
+        refreshRoom(roomId),
+        buildFeed(profile, rankingInteractions, { excludeInteracted: false }),
       ]);
+
+      const votedKeys = new Set(
+        localRoom.swipes
+          .filter((swipe) => swipe.user_id === profile.id)
+          .map((swipe) => itemKey(swipe.media_type, swipe.tmdb_id)),
+      );
+
       setRoom(nextRoom);
       setMembers(nextMembers);
-      setMatches(nextMatches);
-      setCards(nextCards);
+      setMatches(localRoom.matches);
+      setCards(
+        nextCards.filter((card) => !votedKeys.has(itemKey(resolveMediaType(card), card.id))),
+      );
+      applyCelebrationFromPending();
     } catch (err) {
       setError(err instanceof Error ? err.message : t('errors.generic'));
     } finally {
       setLoading(false);
     }
-  }, [profile, roomId, t]);
+  }, [
+    applyCelebrationFromPending,
+    interactions,
+    interactionsReady,
+    isConfigured,
+    profile,
+    refreshRoom,
+    roomId,
+    t,
+  ]);
 
   useEffect(() => {
     void loadRoom();
   }, [loadRoom]);
+
+  useEffect(() => {
+    if (!roomId) {
+      return;
+    }
+    setMatches(getMatches(roomId));
+  }, [getMatches, roomId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void Promise.all(
+      matches.map(async (match) => {
+        const details = await getDetails(match.media_type, match.tmdb_id);
+        return {
+          match,
+          title:
+            details?.title ??
+            details?.name ??
+            details?.original_title ??
+            details?.original_name ??
+            `${match.media_type} #${match.tmdb_id}`,
+          poster: posterUrl(details?.poster_path, 'w185'),
+        } satisfies MatchRow;
+      }),
+    ).then((rows) => {
+      if (!cancelled) {
+        setMatchRows(rows);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [matches]);
 
   async function vote(item: MediaItem, voteValue: 'yes' | 'no' | 'seen') {
     if (!roomId) {
       return;
     }
 
-    const before = matches.length;
-    setCards((current) => current.filter((card) => card.id !== item.id || resolveMediaType(card) !== resolveMediaType(item)));
-    await castRoomVote(roomId, item.id, resolveMediaType(item), voteValue);
-    const nextMatches = await listMatches(roomId);
-    setMatches(nextMatches);
-    if (nextMatches.length > before) {
-      setCelebration(nextMatches[0] ?? null);
+    setCards((current) =>
+      current.filter((card) => card.id !== item.id || resolveMediaType(card) !== resolveMediaType(item)),
+    );
+
+    try {
+      await castVote(roomId, item.id, resolveMediaType(item), voteValue);
+      const result = await flush();
+      const syncedMatches = result.newMatchesByRoom[roomId];
+      if (syncedMatches) {
+        setMatches(syncedMatches);
+      } else {
+        setMatches(getMatches(roomId));
+      }
+      applyCelebrationFromPending();
+    } catch (err) {
+      console.warn('Failed to save room vote', err);
+      setCards((current) => [item, ...current.filter((card) => card.id !== item.id)]);
     }
   }
 
@@ -92,7 +186,7 @@ export default function RoomScreen() {
   if (loading) {
     return (
       <View style={[styles.center, { backgroundColor: colors.bg }]}>
-        <ActivityIndicator color={colors.accent} />
+        <ActivityIndicator color={colors.cta} />
       </View>
     );
   }
@@ -100,63 +194,37 @@ export default function RoomScreen() {
   if (error || !room) {
     return (
       <View style={[styles.center, { backgroundColor: colors.bg }]}>
-        <Text style={[styles.error, { color: colors.nope, fontFamily: typography.bodyBold }]}>
+        <AppText color={colors.nope} style={{ fontFamily: typography.bodyBold, textAlign: 'center' }}>
           {error ?? t('rooms.notFound')}
-        </Text>
-        <Pressable onPress={() => router.back()} style={[styles.primary, { backgroundColor: colors.accent }]}>
-          <Text style={[styles.primaryText, { fontFamily: typography.bodyBold }]}>{t('common.back')}</Text>
-        </Pressable>
+        </AppText>
+        <Button label={t('common.back')} onPress={() => router.back()} />
       </View>
     );
   }
 
   return (
-    <ScrollView style={[styles.root, { backgroundColor: colors.bg }]} contentContainerStyle={styles.content}>
-      <Pressable onPress={() => router.back()} style={styles.back}>
-        <Text style={[styles.backText, { color: colors.accent, fontFamily: typography.bodyBold }]}>
-          {t('common.back')}
-        </Text>
-      </Pressable>
-      <Text style={[styles.title, { color: colors.ink, fontFamily: typography.display }]}>
-        {t('rooms.roomName', { code: room.invite_code })}
-      </Text>
-      <Text style={[styles.body, { color: colors.inkMuted, fontFamily: typography.body }]}>
+    <ScrollView
+      style={[styles.root, { backgroundColor: colors.bg }]}
+      contentContainerStyle={[styles.content, { paddingTop: Math.max(insets.top, 8) }]}
+    >
+      <ScreenHeader
+        title={t('rooms.roomName', { code: room.invite_code })}
+        onBack={() => router.back()}
+      />
+      <AppText variant="caption" muted>
         {t(`rooms.strategy.${room.platform_strategy}`)}
-      </Text>
-
-      <Text style={[styles.section, { color: colors.ink, fontFamily: typography.bodyBold }]}>
-        {t('rooms.catalogOwner')}
-      </Text>
-      <View style={styles.memberRow}>
-        {members.map((member) => (
-          <Pressable
-            key={member.user_id}
-            onPress={() => {
-              void handleSetCatalogOwner(member.user_id);
-            }}
-            style={[
-              styles.memberChip,
-              {
-                borderColor: room.catalog_owner_id === member.user_id ? colors.accent : colors.line,
-                backgroundColor: colors.surface,
-              },
-            ]}
-          >
-            <Text style={[styles.memberText, { color: colors.ink, fontFamily: typography.bodyMedium }]}>
-              {member.role === 'host' ? t('rooms.host') : t('rooms.member')} · {member.user_id.slice(0, 6)}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
+      </AppText>
 
       <View style={styles.deckArea}>
         {cards.length > 0 ? (
           <SwipeDeck
             cards={cards}
-            onOpenDetail={(item) => router.push({
-              pathname: '/title/[mediaType]/[id]',
-              params: { mediaType: resolveMediaType(item), id: String(item.id) },
-            })}
+            onOpenDetail={(item) =>
+              router.push({
+                pathname: '/title/[mediaType]/[id]',
+                params: { mediaType: resolveMediaType(item), id: String(item.id) },
+              })
+            }
             onSwipeLike={(item) => {
               void vote(item, 'yes');
             }}
@@ -168,78 +236,96 @@ export default function RoomScreen() {
             }}
           />
         ) : (
-          <Text style={[styles.body, { color: colors.inkMuted, fontFamily: typography.body }]}>
-            {t('rooms.emptyDeck')}
-          </Text>
+          <AppText muted>{t('rooms.emptyDeck')}</AppText>
         )}
       </View>
 
-      <Text style={[styles.section, { color: colors.ink, fontFamily: typography.bodyBold }]}>
-        {t('rooms.matches')}
-      </Text>
-      {matches.length === 0 ? (
-        <Text style={[styles.body, { color: colors.inkMuted, fontFamily: typography.body }]}>
-          {t('rooms.noMatches')}
-        </Text>
-      ) : (
-        matches.map((match) => (
+      <AppText variant="section">{t('rooms.catalogOwner')}</AppText>
+      <View style={styles.memberRow}>
+        {members.map((member, index) => (
           <Pressable
-            key={match.id}
-            onPress={() => router.push({
-              pathname: '/title/[mediaType]/[id]',
-              params: { mediaType: match.media_type, id: String(match.tmdb_id) },
-            })}
+            key={member.user_id}
+            onPress={() => {
+              void handleSetCatalogOwner(member.user_id);
+            }}
+            style={[
+              styles.memberChip,
+              {
+                borderColor: room.catalog_owner_id === member.user_id ? colors.cta : colors.line,
+                backgroundColor:
+                  room.catalog_owner_id === member.user_id ? colors.accentSoft : colors.surface,
+              },
+            ]}
+          >
+            <AppText variant="label">
+              {member.role === 'host' ? t('rooms.host') : `${t('rooms.member')} ${index + 1}`}
+            </AppText>
+          </Pressable>
+        ))}
+      </View>
+
+      <RoomTasteMatch roomId={room.id} memberCount={members.length} />
+
+      <AppText variant="section">{t('rooms.matches')}</AppText>
+      {matchRows.length === 0 ? (
+        <AppText muted>{t('rooms.noMatches')}</AppText>
+      ) : (
+        matchRows.map((row) => (
+          <Pressable
+            key={row.match.id}
+            onPress={() =>
+              router.push({
+                pathname: '/title/[mediaType]/[id]',
+                params: { mediaType: row.match.media_type, id: String(row.match.tmdb_id) },
+              })
+            }
             style={[styles.matchRow, { backgroundColor: colors.surface, borderColor: colors.line }]}
           >
-            <Text style={[styles.matchText, { color: colors.ink, fontFamily: typography.bodyBold }]}>
-              {match.media_type.toUpperCase()} #{match.tmdb_id}
-            </Text>
-            <Text style={[styles.matchDate, { color: colors.inkMuted, fontFamily: typography.body }]}>
-              {new Date(match.matched_at).toLocaleDateString()}
-            </Text>
+            {row.poster ? (
+              <Image source={{ uri: row.poster }} style={styles.matchPoster} />
+            ) : (
+              <View style={[styles.matchPoster, { backgroundColor: colors.line }]} />
+            )}
+            <View style={{ flex: 1, gap: 4 }}>
+              <AppText style={{ fontFamily: typography.bodyBold, fontSize: 15 }} numberOfLines={2}>
+                {row.title}
+              </AppText>
+              <AppText variant="label" muted>
+                {new Date(row.match.matched_at).toLocaleDateString()}
+              </AppText>
+            </View>
           </Pressable>
         ))
       )}
 
-      <Modal visible={celebration !== null} transparent animationType="fade" onRequestClose={() => setCelebration(null)}>
-        <View style={styles.modalBackdrop}>
-          <View style={[styles.modal, { backgroundColor: colors.surface }]}>
-            <Text style={[styles.modalTitle, { color: colors.match, fontFamily: typography.display }]}>
-              {t('match.title')}
-            </Text>
-            <Text style={[styles.body, { color: colors.inkMuted, fontFamily: typography.body, textAlign: 'center' }]}>
-              {t('match.body')}
-            </Text>
-            <Pressable onPress={() => setCelebration(null)} style={[styles.primary, { backgroundColor: colors.match }]}>
-              <Text style={[styles.primaryText, { fontFamily: typography.bodyBold }]}>{t('common.continue')}</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+      <MatchCelebration
+        match={celebration}
+        onClose={() => setCelebration(null)}
+        onOpenDetail={(match) =>
+          router.push({
+            pathname: '/title/[mediaType]/[id]',
+            params: { mediaType: match.media_type, id: String(match.tmdb_id) },
+          })
+        }
+      />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  content: { padding: 20, paddingBottom: 40, gap: 12 },
+  content: { paddingHorizontal: 20, paddingBottom: 40, gap: 12 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 16 },
-  back: { alignSelf: 'flex-start', paddingVertical: 8 },
-  backText: { fontSize: 15 },
-  title: { fontSize: 30 },
-  body: { fontSize: 15, lineHeight: 21 },
-  section: { fontSize: 18, marginTop: 8 },
   memberRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  memberChip: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 7 },
-  memberText: { fontSize: 12 },
+  memberChip: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 8 },
   deckArea: { height: 560 },
-  matchRow: { borderWidth: 1, borderRadius: 16, padding: 14, flexDirection: 'row', justifyContent: 'space-between' },
-  matchText: { fontSize: 14 },
-  matchDate: { fontSize: 12 },
-  error: { fontSize: 15, textAlign: 'center' },
-  primary: { borderRadius: 999, paddingHorizontal: 18, paddingVertical: 11, alignItems: 'center' },
-  primaryText: { color: '#FFFFFF', fontSize: 14 },
-  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center', padding: 24 },
-  modal: { borderRadius: 28, padding: 24, gap: 12, alignItems: 'center' },
-  modalTitle: { fontSize: 32 },
+  matchRow: {
+    borderWidth: 1,
+    borderRadius: 14,
+    padding: 10,
+    flexDirection: 'row',
+    gap: 12,
+    alignItems: 'center',
+  },
+  matchPoster: { width: 48, height: 72, borderRadius: 8 },
 });

@@ -4,6 +4,7 @@ export type TmdbAction =
   | 'discover'
   | 'details'
   | 'similar'
+  | 'recommendations'
   | 'videos'
   | 'providers'
   | 'trending'
@@ -123,6 +124,14 @@ export type TmdbParams = {
   page?: number;
   with_genres?: string;
   with_runtime_lte?: number;
+  with_watch_providers?: string;
+  with_watch_monetization_types?: string;
+  sort_by?: string;
+  vote_count_gte?: number;
+  primary_release_date_gte?: string;
+  primary_release_date_lte?: string;
+  first_air_date_gte?: string;
+  first_air_date_lte?: string;
   language?: string;
   query?: string;
 };

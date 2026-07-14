@@ -42,10 +42,15 @@ Animaciones con Reanimated; mantener 60fps en dispositivos medios (prefetch de i
 
 ## Patrones de datos
 
-- **Source of truth** de interacciones: Postgres (`title_interactions`), no solo estado local.
-- Política de nopes aplicada en **servidor/query del feed**, no solo ocultando en UI.
+- **Source of truth (UX / lectura):** espejo local en **Expo SQLite** (`title_interactions`, votes propios de sala, cache de `room_matches`).
+- **Source of truth (backup / multi-device / consenso multi-usuario):** Postgres en Supabase. El cliente escribe primero en local + outbox y sincroniza en background (foreground, intervalo ~30s, post-mutación).
+- Merge multi-dispositivo: **last-write-wins** por `updated_at`. Filas con outbox pendiente no se sobreescriben en el pull.
+- Match de sala: se calcula en el **servidor** (trigger unánime `yes`) cuando llegan los `room_swipes`; la celebración puede ser **diferida** hasta el flush + pull.
+- Membership / join / create room: **cloud-inmediato** (no diferir).
+- Política de nopes aplicada al armar el feed (local + perfil), no solo ocultando en UI.
 - Prefetch del mazo (p.ej. 20–40); reponer al quedar pocas cartas.
 - IDs de contenido: `tmdb_id` + `media_type` (`movie` | `tv`).
+- **Cache TMDB de lista (Vault):** espejo SQLite `tmdb_title_cache` (título, póster, géneros, providers por región) con TTL; enrich paginado (~20) en `TitleCollection`.
 
 ## Patrones de código React Native
 

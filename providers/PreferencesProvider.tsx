@@ -50,7 +50,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   const systemScheme = useColorScheme();
   const [ready, setReady] = useState(false);
   const [language, setLanguageState] = useState<AppLanguage>(resolveDeviceLanguage());
-  const [themeMode, setThemeModeState] = useState<ThemeMode>('light');
+  const [themeMode, setThemeModeState] = useState<ThemeMode>('dark');
 
   useEffect(() => {
     let cancelled = false;
@@ -66,7 +66,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
       const nextLanguage = isAppLanguage(storedLanguage)
         ? storedLanguage
         : resolveDeviceLanguage();
-      const nextTheme = isThemeMode(storedTheme) ? storedTheme : 'light';
+      const nextTheme = isThemeMode(storedTheme) ? storedTheme : 'dark';
 
       setLanguageState(nextLanguage);
       setThemeModeState(nextTheme);

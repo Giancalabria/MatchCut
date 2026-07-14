@@ -11,6 +11,7 @@ import { JustWatchAttribution } from '@/src/features/deck/JustWatchAttribution';
 import { backdropUrl, posterUrl } from '@/src/features/tmdb/images';
 import { getDetails, getProviders, getVideos } from '@/src/features/tmdb/client';
 import type { MediaDetails, MediaType, MediaVideo, RegionWatchProviders } from '@/src/features/tmdb/types';
+import { ScreenHeader } from '@/src/ui';
 import { typography } from '@/theme/typography';
 
 function isMediaType(value: unknown): value is MediaType {
@@ -101,8 +102,8 @@ export default function TitleDetailScreen() {
         <Text style={[styles.error, { color: colors.nope, fontFamily: typography.bodyBold }]}>
           {error ?? t('errors.generic')}
         </Text>
-        <Pressable onPress={() => router.back()} style={[styles.button, { backgroundColor: colors.accent }]}>
-          <Text style={[styles.buttonText, { fontFamily: typography.bodyBold }]}>{t('common.back')}</Text>
+        <Pressable onPress={() => router.back()} style={[styles.button, { backgroundColor: colors.cta }]}>
+          <Text style={[styles.buttonText, { fontFamily: typography.bodyBold, color: colors.onAccent }]}>{t('common.back')}</Text>
         </Pressable>
       </View>
     );
@@ -113,18 +114,29 @@ export default function TitleDetailScreen() {
   const backdrop = backdropUrl(details.backdrop_path) ?? posterUrl(details.poster_path);
 
   return (
-    <ScrollView style={[styles.root, { backgroundColor: colors.bg }]} contentContainerStyle={styles.content}>
-      <Pressable onPress={() => router.back()} style={styles.back}>
-        <Text style={[styles.backText, { color: colors.accent, fontFamily: typography.bodyBold }]}>
-          {t('common.back')}
-        </Text>
-      </Pressable>
-
+    <View style={[styles.root, { backgroundColor: colors.bg }]}>
+      <View style={styles.headerPad}>
+        <ScreenHeader showSafeTop onBack={() => router.back()} />
+      </View>
+      <ScrollView contentContainerStyle={styles.content}>
       {backdrop ? <Image source={{ uri: backdrop }} style={styles.backdrop} contentFit="cover" /> : null}
 
       <Text style={[styles.title, { color: colors.ink, fontFamily: typography.display }]}>
         {titleFor(details)}
       </Text>
+      {(() => {
+        const year = (details.release_date ?? details.first_air_date)?.slice(0, 4) ?? null;
+        const rating =
+          typeof details.vote_average === 'number' && details.vote_average > 0
+            ? details.vote_average.toFixed(1)
+            : null;
+        const meta = [rating, year].filter(Boolean).join(' · ');
+        return meta ? (
+          <Text style={[styles.tagline, { color: colors.inkMuted, fontFamily: typography.bodyMedium }]}>
+            {meta}
+          </Text>
+        ) : null;
+      })()}
       {details.tagline ? (
         <Text style={[styles.tagline, { color: colors.inkMuted, fontFamily: typography.bodyMedium }]}>
           {details.tagline}
@@ -199,16 +211,16 @@ export default function TitleDetailScreen() {
           </ScrollView>
         </>
       ) : null}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
+  headerPad: { paddingHorizontal: 16 },
   content: { padding: 20, paddingBottom: 40, gap: 12 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 16 },
-  back: { alignSelf: 'flex-start', paddingVertical: 8 },
-  backText: { fontSize: 15 },
   backdrop: { height: 220, borderRadius: 24, overflow: 'hidden' },
   title: { fontSize: 32 },
   tagline: { fontSize: 15, lineHeight: 21 },
@@ -225,5 +237,5 @@ const styles = StyleSheet.create({
   castRole: { fontSize: 12 },
   error: { fontSize: 16, textAlign: 'center' },
   button: { borderRadius: 999, paddingHorizontal: 18, paddingVertical: 11 },
-  buttonText: { color: '#FFFFFF', fontSize: 14 },
+  buttonText: { fontSize: 14 },
 });

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Stack, router, useLocalSearchParams } from 'expo-router';
+import { Stack, router, useLocalSearchParams, type Href } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
   Pressable,
@@ -61,12 +61,11 @@ export default function DiscardPolicyScreen() {
       await updateProfile({
         nope_policy: policy,
         nope_cooldown_days: policy === 'cooldown' ? effectiveDays : null,
-        onboarding_completed: true,
       });
       if (isEdit) {
         router.back();
       } else {
-        router.replace('/(tabs)/explore');
+        router.push('/(onboarding)/taste-intro' as Href);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : t('auth.unknownError'));
@@ -77,14 +76,18 @@ export default function DiscardPolicyScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: t('settings.editDiscard') }} />
+      <Stack.Screen options={{ title: isEdit ? t('settings.editDiscard') : t('onboarding.discardTitle') }} />
       <ScrollView contentContainerStyle={styles.content}>
-      <Text style={[styles.title, { color: colors.ink, fontFamily: typography.display }]}>
-        {t('onboarding.discardTitle')}
-      </Text>
-      <Text style={[styles.subtitle, { color: colors.inkMuted, fontFamily: typography.body }]}>
-        {t('onboarding.discardSubtitle')}
-      </Text>
+      {!isEdit ? (
+        <>
+          <Text style={[styles.title, { color: colors.ink, fontFamily: typography.display }]}>
+            {t('onboarding.discardTitle')}
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.inkMuted, fontFamily: typography.body }]}>
+            {t('onboarding.discardSubtitle')}
+          </Text>
+        </>
+      ) : null}
 
       <View style={styles.stack}>
         {POLICIES.map((item) => (
@@ -141,10 +144,10 @@ export default function DiscardPolicyScreen() {
       <Pressable
         disabled={busy}
         onPress={onFinish}
-        style={[styles.cta, { backgroundColor: colors.accent, opacity: busy ? 0.5 : 1 }]}
+        style={[styles.cta, { backgroundColor: colors.cta, opacity: busy ? 0.5 : 1 }]}
       >
-        <Text style={[styles.ctaLabel, { fontFamily: typography.bodyBold }]}>
-          {isEdit ? t('common.save') : t('onboarding.finish')}
+        <Text style={[styles.ctaLabel, { fontFamily: typography.bodyBold, color: colors.onAccent }]}>
+          {isEdit ? t('common.save') : t('common.continue')}
         </Text>
       </Pressable>
     </ScrollView>
@@ -172,5 +175,5 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
   },
-  ctaLabel: { color: '#FFFFFF', fontSize: 16 },
+  ctaLabel: { fontSize: 16 },
 });

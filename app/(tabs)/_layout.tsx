@@ -1,31 +1,23 @@
 import { Redirect, Tabs } from 'expo-router';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/providers/AuthProvider';
 import { useThemeColors } from '@/providers/PreferencesProvider';
+import { AppIcon } from '@/src/ui/AppIcon';
 import { typography } from '@/theme/typography';
-
-function TabIcon({
-  name,
-  color,
-}: {
-  name: 'compass' | 'users' | 'archive';
-  color: string;
-}) {
-  return <FontAwesome name={name} size={20} color={color} />;
-}
 
 export default function TabsLayout() {
   const { t } = useTranslation();
   const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
   const { ready, profileReady, session, isConfigured, needsOnboarding } = useAuth();
 
   if (!ready || (isConfigured && session && !profileReady)) {
     return (
       <View style={[styles.boot, { backgroundColor: colors.bg }]}>
-        <ActivityIndicator color={colors.accent} />
+        <ActivityIndicator color={colors.cta} />
       </View>
     );
   }
@@ -41,14 +33,14 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerStyle: { backgroundColor: colors.bg },
-        headerTintColor: colors.ink,
-        headerTitleStyle: { fontFamily: typography.display, fontSize: 20 },
+        headerShown: false,
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.line,
+          paddingBottom: Math.max(insets.bottom, 6),
+          height: 56 + Math.max(insets.bottom, 6),
         },
-        tabBarActiveTintColor: colors.accent,
+        tabBarActiveTintColor: colors.cta,
         tabBarInactiveTintColor: colors.inkMuted,
         tabBarLabelStyle: { fontFamily: typography.bodyMedium, fontSize: 12 },
       }}
@@ -57,8 +49,12 @@ export default function TabsLayout() {
         name="explore"
         options={{
           title: t('tabs.explore'),
-          tabBarIcon: ({ color }) => (
-            <TabIcon name="compass" color={typeof color === 'string' ? color : colors.inkMuted} />
+          tabBarIcon: ({ color, focused }) => (
+            <AppIcon
+              name={focused ? 'explore' : 'exploreOutline'}
+              color={typeof color === 'string' ? color : colors.inkMuted}
+              size={22}
+            />
           ),
         }}
       />
@@ -66,8 +62,12 @@ export default function TabsLayout() {
         name="rooms"
         options={{
           title: t('tabs.rooms'),
-          tabBarIcon: ({ color }) => (
-            <TabIcon name="users" color={typeof color === 'string' ? color : colors.inkMuted} />
+          tabBarIcon: ({ color, focused }) => (
+            <AppIcon
+              name={focused ? 'rooms' : 'roomsOutline'}
+              color={typeof color === 'string' ? color : colors.inkMuted}
+              size={22}
+            />
           ),
         }}
       />
@@ -75,8 +75,12 @@ export default function TabsLayout() {
         name="vault"
         options={{
           title: t('tabs.vault'),
-          tabBarIcon: ({ color }) => (
-            <TabIcon name="archive" color={typeof color === 'string' ? color : colors.inkMuted} />
+          tabBarIcon: ({ color, focused }) => (
+            <AppIcon
+              name={focused ? 'vault' : 'vaultOutline'}
+              color={typeof color === 'string' ? color : colors.inkMuted}
+              size={22}
+            />
           ),
         }}
       />

@@ -70,10 +70,10 @@ export default function LoginScreen() {
                 {t('auth.supabaseMissing')}
               </Text>
               <Pressable
-                style={[styles.primaryButton, { backgroundColor: colors.accent }]}
+                style={[styles.primaryButton, { backgroundColor: colors.cta }]}
                 onPress={() => router.replace('/(tabs)/explore')}
               >
-                <Text style={[styles.primaryLabel, { fontFamily: typography.bodyBold }]}>
+                <Text style={[styles.primaryLabel, { fontFamily: typography.bodyBold, color: colors.onAccent }]}>
                   {t('auth.enterApp')}
                 </Text>
               </Pressable>
@@ -126,7 +126,7 @@ export default function LoginScreen() {
                 style={[
                   styles.primaryButton,
                   {
-                    backgroundColor: colors.accent,
+                    backgroundColor: colors.cta,
                     opacity: busy || !email || password.length < 6 ? 0.5 : 1,
                   },
                 ]}
@@ -139,9 +139,9 @@ export default function LoginScreen() {
                 }
               >
                 {busy ? (
-                  <ActivityIndicator color="#FFFFFF" />
+                  <ActivityIndicator color={colors.onAccent} />
                 ) : (
-                  <Text style={[styles.primaryLabel, { fontFamily: typography.bodyBold }]}>
+                  <Text style={[styles.primaryLabel, { fontFamily: typography.bodyBold, color: colors.onAccent }]}>
                     {mode === 'signin' ? t('auth.signIn') : t('auth.signUp')}
                   </Text>
                 )}
@@ -232,7 +232,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   primaryLabel: {
-    color: '#FFFFFF',
     fontSize: 16,
   },
   secondaryButton: {

@@ -2,9 +2,11 @@
   "common": {
     "appName": "Match Cut",
     "cancel": "Cancelar",
+    "close": "Cerrar",
     "save": "Guardar",
     "back": "Volver",
     "continue": "Continuar",
+    "skip": "Omitir",
     "comingSoon": "Próximamente"
   },
   "tabs": {
@@ -44,7 +46,21 @@
     "days": "{{count}} días",
     "customDays": "Personalizado (días)",
     "invalidCooldown": "Ingresá un número de días válido.",
-    "finish": "Empezar a explorar"
+    "finish": "Empezar a explorar",
+    "tasteIntroTitle": "Armemos tu perfil",
+    "tasteIntroBody": "Antes de sugerirte qué ver, te vamos a mostrar clásicos que casi todo el mundo vio. No es para armar una lista: es para entender tu gusto.",
+    "tasteGesturesTitle": "En esta parte:",
+    "tasteGestureLike": "Derecha — me gustó",
+    "tasteGestureNope": "Izquierda — no me gustó",
+    "tasteGestureUnseen": "Arriba — no la vi",
+    "tasteIntroNote": "Después vas a explorar títulos nuevos para guardar, descartar o marcar como vistas.",
+    "tasteIntroCta": "Empezar calibración",
+    "tasteCalibrationTitle": "Tu gusto",
+    "tasteProgress": "{{answered}} de {{total}}",
+    "tasteFinishEarly": "Listo, continuar",
+    "stampLiked": "ME GUSTÓ",
+    "stampDisliked": "NO",
+    "stampUnseen": "NO LA VI"
   },
   "regions": {
     "AR": "Argentina",
@@ -72,21 +88,46 @@
   },
   "explore": {
     "title": "Explorar",
-    "placeholder": "Acá va a vivir el mazo de swipes.",
-    "hint": "Deslizá derecha para guardar, izquierda para descartar, arriba si ya la viste.",
     "loading": "Buscando títulos...",
     "emptyTitle": "No hay cartas por ahora",
-    "emptyBody": "Probá actualizar o ajustar tus plataformas en La Bóveda.",
+    "emptyBody": "Probá actualizar o ajustar tus plataformas en Ajustes.",
+    "exhaustedTitle": "Llegaste al final por ahora",
+    "exhaustedBody": "Volvé más tarde o ajustá filtros y plataformas.",
     "refresh": "Actualizar",
     "unratedBadge": "{{count}} sin calificar",
-    "swipeLike": "Derecha: watchlist",
-    "swipeNope": "Izquierda: no",
-    "swipeSeen": "Arriba: vista",
-    "filtersActive": "Filtros activos — el mazo prioriza tu mood"
+    "filtersActive": "Filtros activos",
+    "stampLike": "LIKE",
+    "stampNope": "NOPE",
+    "stampSeen": "VISTA",
+    "tutorialTitle": "Así se explora",
+    "tutorialBody": "Ahora sí: el mazo es para decidir qué ver. Los gestos son distintos a la calibración.",
+    "tutorialLike": "Derecha — guardar en Watchlist",
+    "tutorialNope": "Izquierda — descartar",
+    "tutorialSeen": "Arriba — ya la vi (calificás después)",
+    "tutorialCta": "Entendido"
+  },
+  "tour": {
+    "stepProgress": "Paso {{current}} de {{total}}",
+    "finishCta": "Empezar",
+    "steps": {
+      "gesturesTitle": "Así se explora",
+      "gesturesBody": "El mazo es para decidir qué ver. Deslizá las cartas:",
+      "gesturesLike": "Derecha — guardar en Watchlist",
+      "gesturesNope": "Izquierda — descartar",
+      "gesturesSeen": "Arriba — ya la vi (calificás después)",
+      "filtersTitle": "Filtros",
+      "filtersBody": "En Explorar podés filtrar por tipo (película/serie), género, duración máxima o buscar algo parecido a un título que ya te gusta.",
+      "searchTitle": "Búsqueda",
+      "searchBody": "Usá la lupa para buscar por nombre. También podés combinar la búsqueda con los mismos filtros de mood.",
+      "vaultTitle": "La Bóveda",
+      "vaultBody": "Ahí vive todo lo personal: Tu gusto, Watchlist, Descartes y Vistas. Podés calificar pendientes en bloque y ver cómo se afina tu feed.",
+      "vaultWatchlist": "Watchlist — lo que querés ver",
+      "vaultDiscards": "Descartes — lo que pasaste; podés restaurar",
+      "vaultDiary": "Vistas — lo ya visto, con o sin nota"
+    }
   },
   "filters": {
-    "title": "Filtros de mood",
-    "subtitle": "Opcional: acotá el catálogo antes de swipar.",
+    "title": "Filtros",
     "apply": "Aplicar",
     "clear": "Limpiar",
     "mediaType": "Tipo",
@@ -103,9 +144,9 @@
   },
   "search": {
     "title": "Buscar",
-    "subtitle": "Encontrá un título o explorá con los mismos filtros del mood.",
     "placeholder": "Nombre de película o serie…",
-    "optionalFilters": "Filtros opcionales",
+    "optionalFilters": "Filtros",
+    "hideFilters": "Ocultar filtros",
     "submit": "Buscar",
     "noResults": "No encontramos resultados con esos criterios.",
     "needQueryOrFilter": "Escribí un título o elegí al menos un filtro."
@@ -130,8 +171,6 @@
   },
   "rooms": {
     "title": "Salas",
-    "placeholder": "Creá o unite a salas de match acá.",
-    "subtitle": "Creá una sala o unite con un código para encontrar matches asincrónicos.",
     "inviteCode": "Código",
     "join": "Unirme",
     "create": "Crear sala",
@@ -140,9 +179,24 @@
     "catalogOwner": "Catálogo base",
     "host": "Host",
     "member": "Miembro",
+    "memberN": "Miembro {{n}}",
     "emptyDeck": "No hay cartas listas para esta sala.",
     "matches": "Matches",
     "noMatches": "Todavía no hay matches.",
+    "tasteMatchTitle": "Compatibilidad de gustos",
+    "tasteMatchHint": "Se calcula con las películas y series que ambos calificaron. No es un veredicto: es una herramienta para afinar el grupo.",
+    "tasteMatchNeedMembers": "Invitá a alguien a la sala para medir compatibilidad.",
+    "tasteMatchEmpty": "Todavía no hay pares para comparar.",
+    "tasteMatchPercent": "{{percent}}%",
+    "tasteMatchMeasuring": "Aún midiendo…",
+    "tasteMatchSuggest": "Calificá estos para subir el overlap",
+    "tasteMatchRateCta": "Ir a Gusto",
+    "tasteMatchConfidence": {
+      "none": "Poco overlap todavía ({{overlap}} en común). Calificá más en solitario.",
+      "low": "Confianza baja · {{overlap}} títulos en común",
+      "medium": "Confianza media · {{overlap}} títulos en común",
+      "high": "Confianza alta · {{overlap}} títulos en común"
+    },
     "strategy": {
       "intersection": "Solo plataformas en común",
       "catalog_owner": "Catálogo del anfitrión",
@@ -152,22 +206,88 @@
   },
   "vault": {
     "title": "La Bóveda",
-    "placeholder": "Watchlist, descartes y diario van a vivir acá.",
-    "subtitle": "Tu watchlist, descartes y diario en un solo lugar.",
     "settings": "Ajustes",
     "empty": "Nada por acá todavía.",
+    "emptyFiltered": "Ningún título coincide con esos filtros.",
     "restore": "Restaurar",
     "moveToWatchlist": "Mover a watchlist",
     "ratingValue": "{{rating}}/10",
+    "rateCta": "Calificar",
+    "markSeenCta": "Ya la vi",
+    "rateTitle": "Tu nota",
+    "pickRandom": "Elegir al azar",
+    "bulkRateCta": "Calificar pendientes",
+    "bulkRateProgress": "{{current}} de {{total}}",
+    "bulkRateSkip": "Omitir",
+    "bulkRateDone": "Listo",
+    "bulkRateEmpty": "No hay pendientes por calificar.",
+    "bulkRateFeedback": "Sumaste {{count}} notas.",
+    "bulkRateFeedbackHint": "Tu feed usa estas calificaciones para afinar qué te mostramos.",
+    "bulkRateFeedbackGenre": "Tu radar sigue fuerte en {{genre}}.",
+    "bulkRateFeedbackSkipped": "No calificaste nada esta vez.",
+    "filterGenre": "Género",
+    "filterPlatform": "Plataforma",
+    "filterAll": "Todos",
     "segments": {
+      "taste": "Gusto",
       "watchlist": "Watchlist",
       "discards": "Descartes",
-      "diary": "Diario"
+      "diary": "Vistas"
     },
     "action": {
       "like": "En watchlist",
       "nope": "Descartada",
       "seen": "Vista sin calificar"
+    }
+  },
+  "taste": {
+    "title": "Tu gusto",
+    "localOnly": "Entrá con una cuenta para ver tu gusto y calificaciones.",
+    "signatureLabel": "Tu firma",
+    "signatureEmpty": "Calificá al menos 10 títulos para ver tu firma.",
+    "feedTuning": "Feed afinándose",
+    "feedTuned": "Feed afinado",
+    "statRated": "Calificadas",
+    "statPending": "Pendientes",
+    "statAverage": "Nota media",
+    "tuningTitle": "Afiná tu radar",
+    "tuningBody": "{{rated}} de ~{{target}} señales · {{pending}} pendientes",
+    "tuningReadyBody": "Buen volumen de notas y pocos pendientes. El feed ya puede apoyarse en tu gusto.",
+    "rateFiveCta": "Calificar 5 ahora",
+    "ratePendingCta": "Calificar {{count}}",
+    "noPending": "No tenés vistas pendientes de calificar.",
+    "histogramTitle": "Distribución de notas",
+    "histogramEmpty": "Cuando califiques, vas a ver cómo repartís tus notas.",
+    "monthTitle": "Este mes",
+    "monthMark": "Calificaste {{count}} títulos.",
+    "monthMarkHigh": "Calificaste {{count}} · {{highs}} con 9 o 10.",
+    "monthMarkEmpty": "Todavía no calificaste nada este mes.",
+    "openDiary": "Ir a Vistas",
+    "reelTitle": "Carrete de favoritos",
+    "reelEmpty": "Cuando marques 9 o 10, aparecen acá tus favoritos.",
+    "wrapOpenCta": "Ver tu mes en Match Cut",
+    "wrapLocked": "Faltan {{remaining}} calificaciones este mes para desbloquear tu resumen.",
+    "wrapEyebrow": "Tu mes en Match Cut",
+    "wrapIntro": "Un corte de lo que calificaste.",
+    "wrapRated": "{{count}} títulos calificados",
+    "wrapAverage": "Nota media {{avg}}",
+    "wrapGenreTitle": "Géneros del mes",
+    "wrapNoGenre": "Todavía no alcanza para firmar géneros.",
+    "wrapHighs": "{{count}} notas de 9 o 10",
+    "wrapHighsBody": "Esas son las que más empujan tu radar.",
+    "months": {
+      "1": "Enero {{year}}",
+      "2": "Febrero {{year}}",
+      "3": "Marzo {{year}}",
+      "4": "Abril {{year}}",
+      "5": "Mayo {{year}}",
+      "6": "Junio {{year}}",
+      "7": "Julio {{year}}",
+      "8": "Agosto {{year}}",
+      "9": "Septiembre {{year}}",
+      "10": "Octubre {{year}}",
+      "11": "Noviembre {{year}}",
+      "12": "Diciembre {{year}}"
     }
   },
   "detail": {
@@ -176,11 +296,14 @@
     "trailer": "Trailer",
     "providers": "Dónde ver",
     "noProviders": "No encontramos disponibilidad para tu región.",
-    "cast": "Elenco"
+    "cast": "Elenco",
+    "tmdbRating": "{{rating}}"
   },
   "match": {
     "title": "¡Match!",
-    "body": "Todas las personas de la sala votaron que sí."
+    "body": "Todos dijeron que sí.",
+    "keepSwiping": "Seguir swipando",
+    "viewTitle": "Ver título"
   },
   "justwatch": {
     "attribution": "Disponibilidad provista por JustWatch vía TMDB"
@@ -200,11 +323,9 @@
     "themeSystem": "Sistema",
     "signOut": "Cerrar sesión",
     "account": "Cuenta y catálogo",
-    "editRegion": "Cambiar región",
-    "editPlatforms": "Cambiar plataformas",
-    "editDiscard": "Cambiar política de descartes",
-    "regionValue": "Región: {{region}}",
-    "platformsValue": "{{count}} plataformas",
-    "discardValue": "Descartes: {{policy}}"
+    "editRegion": "Región",
+    "editPlatforms": "Plataformas",
+    "editDiscard": "Política de descartes",
+    "platformsValue": "{{count}} plataformas"
   }
 }

@@ -2,12 +2,10 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ActivityIndicator,
   FlatList,
   Image,
   Pressable,
   StyleSheet,
-  Text,
   TextInput,
   View,
 } from 'react-native';
@@ -17,9 +15,10 @@ import { useAuth } from '@/providers/AuthProvider';
 import { useThemeColors } from '@/providers/PreferencesProvider';
 import { fetchWithMood } from '@/src/features/filters/fetchWithMood';
 import { MoodFilterFields } from '@/src/features/filters/MoodFilterFields';
-import { EMPTY_MOOD_FILTERS, type MoodFilters } from '@/src/features/filters/types';
+import { EMPTY_MOOD_FILTERS, isMoodActive, type MoodFilters } from '@/src/features/filters/types';
 import { posterUrl } from '@/src/features/tmdb/images';
 import type { MediaItem, MediaType } from '@/src/features/tmdb/types';
+import { AppText, Button, ScreenHeader } from '@/src/ui';
 import { typography } from '@/theme/typography';
 
 function titleLabel(item: MediaItem): string {
@@ -37,6 +36,7 @@ export default function SearchScreen() {
 
   const [query, setQuery] = useState('');
   const [mood, setMood] = useState<MoodFilters>(EMPTY_MOOD_FILTERS);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [results, setResults] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,19 +79,7 @@ export default function SearchScreen() {
 
   return (
     <SafeAreaView style={[styles.root, { backgroundColor: colors.bg }]}>
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.back}>
-          <Text style={{ color: colors.accent, fontFamily: typography.bodyBold }}>
-            {t('common.back')}
-          </Text>
-        </Pressable>
-        <Text style={[styles.title, { color: colors.ink, fontFamily: typography.display }]}>
-          {t('search.title')}
-        </Text>
-        <Text style={[styles.subtitle, { color: colors.inkMuted, fontFamily: typography.body }]}>
-          {t('search.subtitle')}
-        </Text>
-      </View>
+      <ScreenHeader title={t('search.title')} onBack={() => router.back()} />
 
       <TextInput
         value={query}
@@ -113,37 +101,43 @@ export default function SearchScreen() {
         ]}
       />
 
-      <View style={styles.filtersBox}>
-        <Text style={[styles.filtersTitle, { color: colors.ink, fontFamily: typography.bodyBold }]}>
-          {t('search.optionalFilters')}
-        </Text>
-        <MoodFilterFields value={mood} onChange={setMood} />
-      </View>
-
       <Pressable
-        onPress={() => {
-          void runSearch();
-        }}
-        disabled={loading}
-        style={[styles.searchButton, { backgroundColor: colors.accent, opacity: loading ? 0.6 : 1 }]}
+        onPress={() => setFiltersOpen((open) => !open)}
+        style={[
+          styles.filtersToggle,
+          {
+            borderColor: isMoodActive(mood) ? colors.cta : colors.line,
+            backgroundColor: isMoodActive(mood) ? colors.accentSoft : colors.surface,
+          },
+        ]}
       >
-        {loading ? (
-          <ActivityIndicator color="#FFFFFF" />
-        ) : (
-          <Text style={[styles.searchButtonText, { fontFamily: typography.bodyBold }]}>
-            {t('search.submit')}
-          </Text>
-        )}
+        <AppText style={{ fontFamily: typography.bodyBold, fontSize: 14 }}>
+          {filtersOpen ? t('search.hideFilters') : t('search.optionalFilters')}
+        </AppText>
       </Pressable>
 
+      {filtersOpen ? (
+        <View style={styles.filtersBox}>
+          <MoodFilterFields value={mood} onChange={setMood} />
+        </View>
+      ) : null}
+
+      <Button
+        label={t('search.submit')}
+        loading={loading}
+        onPress={() => void runSearch()}
+      />
+
       {error ? (
-        <Text style={{ color: colors.nope, fontFamily: typography.body, marginTop: 8 }}>{error}</Text>
+        <AppText color={colors.nope} variant="caption">
+          {error}
+        </AppText>
       ) : null}
 
       {searched && !loading && results.length === 0 ? (
-        <Text style={[styles.empty, { color: colors.inkMuted, fontFamily: typography.body }]}>
+        <AppText muted style={styles.empty}>
           {t('search.noResults')}
-        </Text>
+        </AppText>
       ) : null}
 
       <FlatList
@@ -153,24 +147,24 @@ export default function SearchScreen() {
         renderItem={({ item }) => {
           const poster = item.poster_path ? posterUrl(item.poster_path, 'w185') : null;
           return (
-          <Pressable
-            onPress={() => openDetail(item)}
-            style={[styles.row, { backgroundColor: colors.surface, borderColor: colors.line }]}
-          >
-            {poster ? (
-              <Image source={{ uri: poster }} style={styles.poster} />
-            ) : (
-              <View style={[styles.poster, { backgroundColor: colors.line }]} />
-            )}
-            <View style={{ flex: 1, gap: 4 }}>
-              <Text style={{ color: colors.ink, fontFamily: typography.bodyBold, fontSize: 16 }}>
-                {titleLabel(item)}
-              </Text>
-              <Text style={{ color: colors.inkMuted, fontFamily: typography.body, fontSize: 13 }}>
-                {item.overview?.slice(0, 100) ?? ''}
-              </Text>
-            </View>
-          </Pressable>
+            <Pressable
+              onPress={() => openDetail(item)}
+              style={[styles.row, { backgroundColor: colors.surface, borderColor: colors.line }]}
+            >
+              {poster ? (
+                <Image source={{ uri: poster }} style={styles.poster} />
+              ) : (
+                <View style={[styles.poster, { backgroundColor: colors.line }]} />
+              )}
+              <View style={{ flex: 1, gap: 4 }}>
+                <AppText style={{ fontFamily: typography.bodyBold, fontSize: 16 }}>
+                  {titleLabel(item)}
+                </AppText>
+                <AppText variant="caption" muted numberOfLines={2}>
+                  {item.overview?.slice(0, 100) ?? ''}
+                </AppText>
+              </View>
+            </Pressable>
           );
         }}
       />
@@ -179,29 +173,22 @@ export default function SearchScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, paddingHorizontal: 20 },
-  header: { gap: 6, paddingBottom: 12 },
-  back: { alignSelf: 'flex-start', paddingVertical: 4 },
-  title: { fontSize: 28 },
-  subtitle: { fontSize: 15, lineHeight: 21 },
+  root: { flex: 1, paddingHorizontal: 20, gap: 12 },
   input: {
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 16,
-    marginBottom: 12,
   },
-  filtersBox: { maxHeight: 320, marginBottom: 12 },
-  filtersTitle: { fontSize: 15, marginBottom: 8 },
-  searchButton: {
+  filtersToggle: {
+    borderWidth: 1,
     borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginBottom: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
   },
-  searchButtonText: { color: '#FFFFFF', fontSize: 16 },
-  empty: { textAlign: 'center', marginTop: 16 },
+  filtersBox: { maxHeight: 280 },
+  empty: { textAlign: 'center', marginTop: 8 },
   list: { gap: 10, paddingBottom: 24 },
   row: {
     flexDirection: 'row',

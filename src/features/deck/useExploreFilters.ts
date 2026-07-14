@@ -32,15 +32,15 @@ function parseStored(raw: string | null): MoodFilters {
 }
 
 export function useExploreFilters() {
-  const [ready, setReady] = useState(false);
   const [mood, setMoodState] = useState<MoodFilters>(EMPTY_MOOD_FILTERS);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     void getStoredString(STORAGE_KEY).then((raw) => {
       if (cancelled) return;
       setMoodState(parseStored(raw));
-      setReady(true);
+      setHydrated(true);
     });
     return () => {
       cancelled = true;
@@ -56,5 +56,5 @@ export function useExploreFilters() {
     setMood(EMPTY_MOOD_FILTERS);
   }, [setMood]);
 
-  return { ready, mood, setMood, clearMood };
+  return { ready: true, hydrated, mood, setMood, clearMood };
 }

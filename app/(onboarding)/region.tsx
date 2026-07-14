@@ -44,14 +44,18 @@ export default function RegionScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: t('settings.editRegion') }} />
+      <Stack.Screen options={{ title: isEdit ? t('settings.editRegion') : t('onboarding.regionTitle') }} />
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={[styles.title, { color: colors.ink, fontFamily: typography.display }]}>
-          {t('onboarding.regionTitle')}
-        </Text>
-        <Text style={[styles.subtitle, { color: colors.inkMuted, fontFamily: typography.body }]}>
-          {t('onboarding.regionSubtitle')}
-        </Text>
+        {!isEdit ? (
+          <>
+            <Text style={[styles.title, { color: colors.ink, fontFamily: typography.display }]}>
+              {t('onboarding.regionTitle')}
+            </Text>
+            <Text style={[styles.subtitle, { color: colors.inkMuted, fontFamily: typography.body }]}>
+              {t('onboarding.regionSubtitle')}
+            </Text>
+          </>
+        ) : null}
 
         <View style={styles.wrap}>
           {REGIONS.map((item) => (
@@ -73,10 +77,10 @@ export default function RegionScreen() {
           onPress={onContinue}
           style={[
             styles.cta,
-            { backgroundColor: colors.accent, opacity: busy || !region ? 0.5 : 1 },
+            { backgroundColor: colors.cta, opacity: busy || !region ? 0.5 : 1 },
           ]}
         >
-          <Text style={[styles.ctaLabel, { fontFamily: typography.bodyBold }]}>
+          <Text style={[styles.ctaLabel, { fontFamily: typography.bodyBold, color: colors.onAccent }]}>
             {isEdit ? t('common.save') : t('common.continue')}
           </Text>
         </Pressable>
@@ -96,5 +100,5 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
   },
-  ctaLabel: { color: '#FFFFFF', fontSize: 16 },
+  ctaLabel: { fontSize: 16 },
 });

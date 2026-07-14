@@ -1,22 +1,25 @@
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useThemeColors } from '@/providers/PreferencesProvider';
 import { JustWatchAttribution } from '@/src/features/deck/JustWatchAttribution';
+import { ProductTour } from '@/src/features/deck/ProductTour';
 import { SwipeDeck } from '@/src/features/deck/SwipeDeck';
 import { useDeck } from '@/src/features/deck/useDeck';
 import { useExploreFilters } from '@/src/features/deck/useExploreFilters';
 import { MoodFilterFields } from '@/src/features/filters/MoodFilterFields';
 import { EMPTY_MOOD_FILTERS, isMoodActive } from '@/src/features/filters/types';
 import type { MediaItem } from '@/src/features/tmdb/types';
-import { typography } from '@/theme/typography';
+import { AppText, Button, IconButton } from '@/src/ui';
 
 export default function ExploreScreen() {
   const { t } = useTranslation();
   const colors = useThemeColors();
+  const insets = useSafeAreaInsets();
   const { mood, setMood, clearMood } = useExploreFilters();
   const { cards, error, loading, refresh, swipeLike, swipeNope, swipeSeen, unratedCount } = useDeck();
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -43,59 +46,52 @@ export default function ExploreScreen() {
     void refresh();
   }
 
+  function openBulkRating() {
+    router.push({
+      pathname: '/(tabs)/vault',
+      params: { openBulk: '1', segment: 'diary' },
+    } as Href);
+  }
+
   return (
-    <View style={[styles.root, { backgroundColor: colors.bg }]}>
+    <View style={[styles.root, { backgroundColor: colors.bg, paddingTop: Math.max(insets.top, 8) }]}>
       <LinearGradient colors={[colors.bg, colors.bgGlow]} style={StyleSheet.absoluteFill} />
       <View style={styles.header}>
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.title, { color: colors.ink, fontFamily: typography.display }]}>
-            {t('explore.title')}
-          </Text>
-          <Text style={[styles.body, { color: colors.inkMuted, fontFamily: typography.body }]}>
-            {t('explore.hint')}
-          </Text>
-        </View>
-        <View style={styles.headerActions}>
+        <View style={styles.headerLeft}>
           {unratedCount > 0 ? (
-            <View style={[styles.badge, { backgroundColor: colors.seen }]}>
-              <Text style={[styles.badgeText, { fontFamily: typography.bodyBold }]}>
+            <Pressable
+              onPress={openBulkRating}
+              style={[styles.badge, { backgroundColor: colors.warningSoft }]}
+              accessibilityRole="button"
+              accessibilityLabel={t('explore.unratedBadge', { count: unratedCount })}
+            >
+              <AppText variant="label" color={colors.ink}>
                 {t('explore.unratedBadge', { count: unratedCount })}
-              </Text>
+              </AppText>
+            </Pressable>
+          ) : null}
+          {isMoodActive(mood) ? (
+            <View style={[styles.badge, { backgroundColor: colors.accentSoft }]}>
+              <AppText variant="label" color={colors.accentDeep}>
+                {t('explore.filtersActive')}
+              </AppText>
             </View>
           ) : null}
-          <Pressable
+        </View>
+        <View style={styles.headerActions}>
+          <IconButton
+            name="search"
             onPress={() => router.push('/search')}
-            style={[styles.iconButton, { borderColor: colors.line, backgroundColor: colors.surface }]}
-          >
-            <Text style={{ color: colors.ink, fontFamily: typography.bodyBold }}>⌕</Text>
-          </Pressable>
-          <Pressable
+            accessibilityLabel={t('search.title')}
+          />
+          <IconButton
+            name="filters"
             onPress={openFilters}
-            style={[
-              styles.iconButton,
-              {
-                borderColor: isMoodActive(mood) ? colors.accent : colors.line,
-                backgroundColor: colors.surface,
-              },
-            ]}
-          >
-            <Text
-              style={{
-                color: isMoodActive(mood) ? colors.accent : colors.ink,
-                fontFamily: typography.bodyBold,
-              }}
-            >
-              ⚙
-            </Text>
-          </Pressable>
+            active={isMoodActive(mood)}
+            accessibilityLabel={t('filters.title')}
+          />
         </View>
       </View>
-
-      {isMoodActive(mood) ? (
-        <Text style={[styles.filterHint, { color: colors.accent, fontFamily: typography.bodyMedium }]}>
-          {t('explore.filtersActive')}
-        </Text>
-      ) : null}
 
       <View style={styles.deckWrap}>
         {cards.length > 0 ? (
@@ -112,89 +108,61 @@ export default function ExploreScreen() {
               void swipeSeen(item);
             }}
           />
+        ) : loading ? (
+          <View style={styles.loader}>
+            <ActivityIndicator color={colors.cta} size="large" />
+          </View>
         ) : (
           <View style={[styles.empty, { backgroundColor: colors.surface, borderColor: colors.line }]}>
-            {loading ? <ActivityIndicator color={colors.accent} /> : null}
-            <Text style={[styles.emptyTitle, { color: colors.ink, fontFamily: typography.bodyBold }]}>
-              {loading ? t('explore.loading') : t('explore.emptyTitle')}
-            </Text>
+            <AppText variant="section" style={styles.centerText}>
+              {t('explore.emptyTitle')}
+            </AppText>
             {error ? (
-              <Text style={[styles.body, { color: colors.nope, fontFamily: typography.body }]}>
+              <AppText muted style={styles.centerText} color={colors.nope}>
                 {error}
-              </Text>
+              </AppText>
             ) : (
-              <Text style={[styles.body, { color: colors.inkMuted, fontFamily: typography.body }]}>
+              <AppText muted style={styles.centerText}>
                 {t('explore.emptyBody')}
-              </Text>
+              </AppText>
             )}
-            <Pressable
-              onPress={() => {
-                void refresh();
-              }}
-              style={[styles.refresh, { backgroundColor: colors.accent }]}
-            >
-              <Text style={[styles.refreshText, { fontFamily: typography.bodyBold }]}>
-                {t('explore.refresh')}
-              </Text>
-            </Pressable>
+            <Button label={t('explore.refresh')} onPress={() => void refresh()} />
           </View>
         )}
       </View>
 
-      <View style={styles.actionsHint}>
-        <Text style={[styles.actionText, { color: colors.nope, fontFamily: typography.bodyBold }]}>
-          {t('explore.swipeNope')}
-        </Text>
-        <Text style={[styles.actionText, { color: colors.seen, fontFamily: typography.bodyBold }]}>
-          {t('explore.swipeSeen')}
-        </Text>
-        <Text style={[styles.actionText, { color: colors.accent, fontFamily: typography.bodyBold }]}>
-          {t('explore.swipeLike')}
-        </Text>
-      </View>
       <JustWatchAttribution />
+      <ProductTour />
 
       <Modal visible={filtersOpen} animationType="slide" onRequestClose={() => setFiltersOpen(false)}>
         <View style={[styles.modalRoot, { backgroundColor: colors.bg }]}>
-          <Text style={[styles.modalTitle, { color: colors.ink, fontFamily: typography.display }]}>
-            {t('filters.title')}
-          </Text>
-          <Text style={[styles.body, { color: colors.inkMuted, fontFamily: typography.body }]}>
-            {t('filters.subtitle')}
-          </Text>
+          <AppText variant="display">{t('filters.title')}</AppText>
           <View style={styles.modalFields}>
             <MoodFilterFields value={draftMood} onChange={setDraftMood} />
           </View>
           <View style={styles.modalActions}>
-            <Pressable
+            <Button
+              label={t('filters.clear')}
+              variant="ghost"
               onPress={() => {
                 clearMood();
                 setDraftMood(EMPTY_MOOD_FILTERS);
                 setFiltersOpen(false);
                 void refresh();
               }}
-              style={[styles.modalButton, { borderColor: colors.line }]}
-            >
-              <Text style={{ color: colors.inkMuted, fontFamily: typography.bodyBold }}>
-                {t('filters.clear')}
-              </Text>
-            </Pressable>
-            <Pressable
+              style={styles.modalButton}
+            />
+            <Button
+              label={t('common.cancel')}
+              variant="secondary"
               onPress={() => setFiltersOpen(false)}
-              style={[styles.modalButton, { borderColor: colors.line }]}
-            >
-              <Text style={{ color: colors.inkMuted, fontFamily: typography.bodyBold }}>
-                {t('common.cancel')}
-              </Text>
-            </Pressable>
-            <Pressable
+              style={styles.modalButton}
+            />
+            <Button
+              label={t('filters.apply')}
               onPress={applyFilters}
-              style={[styles.modalButton, { backgroundColor: colors.accent, borderColor: colors.accent }]}
-            >
-              <Text style={{ color: '#FFFFFF', fontFamily: typography.bodyBold }}>
-                {t('filters.apply')}
-              </Text>
-            </Pressable>
+              style={styles.modalButton}
+            />
           </View>
         </View>
       </Modal>
@@ -205,42 +173,39 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
     paddingBottom: 12,
-    gap: 8,
+    gap: 10,
   },
   header: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: 12,
-    paddingTop: 8,
+    minHeight: 44,
+  },
+  headerLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
   },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    flexWrap: 'wrap',
-    justifyContent: 'flex-end',
   },
-  title: { fontSize: 30 },
-  body: { fontSize: 16, lineHeight: 22 },
-  filterHint: { fontSize: 13 },
   badge: {
-    borderRadius: 999,
+    borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 7,
   },
-  badgeText: { color: '#FFFFFF', fontSize: 12 },
-  iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   deckWrap: {
     flex: 1,
+  },
+  loader: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   empty: {
     flex: 1,
@@ -249,30 +214,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
-    gap: 10,
+    gap: 12,
   },
-  emptyTitle: { fontSize: 18, textAlign: 'center' },
-  refresh: {
-    borderRadius: 999,
-    paddingHorizontal: 18,
-    paddingVertical: 11,
-    marginTop: 6,
-  },
-  refreshText: { color: '#FFFFFF', fontSize: 14 },
-  actionsHint: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  actionText: { fontSize: 12 },
-  modalRoot: { flex: 1, padding: 24, paddingTop: 48, gap: 10 },
-  modalTitle: { fontSize: 28 },
+  centerText: { textAlign: 'center' },
+  modalRoot: { flex: 1, padding: 24, paddingTop: 48, gap: 12 },
   modalFields: { flex: 1 },
   modalActions: { flexDirection: 'row', gap: 8, paddingTop: 8 },
-  modalButton: {
-    flex: 1,
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingVertical: 13,
-    alignItems: 'center',
-  },
+  modalButton: { flex: 1 },
 });

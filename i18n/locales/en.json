@@ -2,9 +2,11 @@
   "common": {
     "appName": "Match Cut",
     "cancel": "Cancel",
+    "close": "Close",
     "save": "Save",
     "back": "Back",
     "continue": "Continue",
+    "skip": "Skip",
     "comingSoon": "Coming soon"
   },
   "tabs": {
@@ -44,7 +46,21 @@
     "days": "{{count}} days",
     "customDays": "Custom (days)",
     "invalidCooldown": "Enter a valid number of days.",
-    "finish": "Start exploring"
+    "finish": "Start exploring",
+    "tasteIntroTitle": "Let's build your taste profile",
+    "tasteIntroBody": "Before we suggest what to watch, we'll show classics almost everyone has seen. This isn't a watchlist — it's how we learn your taste.",
+    "tasteGesturesTitle": "In this step:",
+    "tasteGestureLike": "Right — I liked it",
+    "tasteGestureNope": "Left — I didn't like it",
+    "tasteGestureUnseen": "Up — I haven't seen it",
+    "tasteIntroNote": "Afterwards you'll explore new titles to save, discard, or mark as watched.",
+    "tasteIntroCta": "Start calibration",
+    "tasteCalibrationTitle": "Your taste",
+    "tasteProgress": "{{answered}} of {{total}}",
+    "tasteFinishEarly": "Done, continue",
+    "stampLiked": "LIKED",
+    "stampDisliked": "NOPE",
+    "stampUnseen": "UNSEEN"
   },
   "regions": {
     "AR": "Argentina",
@@ -72,21 +88,46 @@
   },
   "explore": {
     "title": "Explore",
-    "placeholder": "Your swipe deck will live here.",
-    "hint": "Swipe right to save, left to discard, up if you've already watched.",
     "loading": "Finding titles...",
     "emptyTitle": "No cards right now",
-    "emptyBody": "Try refreshing or adjusting your platforms in Vault.",
+    "emptyBody": "Try refreshing or adjusting your platforms in Settings.",
+    "exhaustedTitle": "You've reached the end for now",
+    "exhaustedBody": "Come back later or tweak filters and platforms.",
     "refresh": "Refresh",
     "unratedBadge": "{{count}} unrated",
-    "swipeLike": "Right: watchlist",
-    "swipeNope": "Left: nope",
-    "swipeSeen": "Up: seen",
-    "filtersActive": "Filters active — deck prioritizes your mood"
+    "filtersActive": "Filters active",
+    "stampLike": "LIKE",
+    "stampNope": "NOPE",
+    "stampSeen": "SEEN",
+    "tutorialTitle": "How Explore works",
+    "tutorialBody": "Now the deck is for deciding what to watch. Gestures differ from calibration.",
+    "tutorialLike": "Right — save to Watchlist",
+    "tutorialNope": "Left — discard",
+    "tutorialSeen": "Up — already watched (rate later)",
+    "tutorialCta": "Got it"
+  },
+  "tour": {
+    "stepProgress": "Step {{current}} of {{total}}",
+    "finishCta": "Get started",
+    "steps": {
+      "gesturesTitle": "How Explore works",
+      "gesturesBody": "The deck is for deciding what to watch. Swipe the cards:",
+      "gesturesLike": "Right — save to Watchlist",
+      "gesturesNope": "Left — discard",
+      "gesturesSeen": "Up — already watched (rate later)",
+      "filtersTitle": "Filters",
+      "filtersBody": "In Explore you can filter by type (movie/TV), genre, max runtime, or find titles similar to one you already like.",
+      "searchTitle": "Search",
+      "searchBody": "Use the search icon to look up titles by name. You can combine search with the same mood filters.",
+      "vaultTitle": "The Vault",
+      "vaultBody": "Your personal hub: Taste, Watchlist, Discards, and Watched. Rate pending titles in bulk and see your feed tune itself.",
+      "vaultWatchlist": "Watchlist — titles you want to watch",
+      "vaultDiscards": "Discards — passed titles; you can restore them",
+      "vaultDiary": "Watched — seen titles, rated or not"
+    }
   },
   "filters": {
-    "title": "Mood filters",
-    "subtitle": "Optional: narrow the catalog before swiping.",
+    "title": "Filters",
     "apply": "Apply",
     "clear": "Clear",
     "mediaType": "Type",
@@ -103,9 +144,9 @@
   },
   "search": {
     "title": "Search",
-    "subtitle": "Find a title or browse with the same mood filters.",
     "placeholder": "Movie or series name…",
-    "optionalFilters": "Optional filters",
+    "optionalFilters": "Filters",
+    "hideFilters": "Hide filters",
     "submit": "Search",
     "noResults": "No results matched those criteria.",
     "needQueryOrFilter": "Enter a title or pick at least one filter."
@@ -130,8 +171,6 @@
   },
   "rooms": {
     "title": "Rooms",
-    "placeholder": "Create or join match rooms here.",
-    "subtitle": "Create a room or join with a code to find async matches.",
     "inviteCode": "Code",
     "join": "Join",
     "create": "Create room",
@@ -140,9 +179,24 @@
     "catalogOwner": "Catalog owner",
     "host": "Host",
     "member": "Member",
+    "memberN": "Member {{n}}",
     "emptyDeck": "No cards are ready for this room.",
     "matches": "Matches",
     "noMatches": "No matches yet.",
+    "tasteMatchTitle": "Taste compatibility",
+    "tasteMatchHint": "Built from titles you both rated. It’s a tuning tool for the group, not a verdict.",
+    "tasteMatchNeedMembers": "Invite someone to the room to measure compatibility.",
+    "tasteMatchEmpty": "No pairs to compare yet.",
+    "tasteMatchPercent": "{{percent}}%",
+    "tasteMatchMeasuring": "Still measuring…",
+    "tasteMatchSuggest": "Rate these to raise overlap",
+    "tasteMatchRateCta": "Open Taste",
+    "tasteMatchConfidence": {
+      "none": "Not enough overlap yet ({{overlap}} shared). Rate more on your own.",
+      "low": "Low confidence · {{overlap}} titles in common",
+      "medium": "Medium confidence · {{overlap}} titles in common",
+      "high": "High confidence · {{overlap}} titles in common"
+    },
     "strategy": {
       "intersection": "Only shared platforms",
       "catalog_owner": "Host catalog",
@@ -152,22 +206,88 @@
   },
   "vault": {
     "title": "Vault",
-    "placeholder": "Watchlist, discards, and diary will live here.",
-    "subtitle": "Your watchlist, discards, and diary in one place.",
     "settings": "Settings",
     "empty": "Nothing here yet.",
+    "emptyFiltered": "No titles match those filters.",
     "restore": "Restore",
     "moveToWatchlist": "Move to watchlist",
     "ratingValue": "{{rating}}/10",
+    "rateCta": "Rate",
+    "markSeenCta": "I've watched it",
+    "rateTitle": "Your rating",
+    "pickRandom": "Pick at random",
+    "bulkRateCta": "Rate pending",
+    "bulkRateProgress": "{{current}} of {{total}}",
+    "bulkRateSkip": "Skip",
+    "bulkRateDone": "Done",
+    "bulkRateEmpty": "Nothing left to rate.",
+    "bulkRateFeedback": "You added {{count}} ratings.",
+    "bulkRateFeedbackHint": "Your feed uses these ratings to tune what it shows you.",
+    "bulkRateFeedbackGenre": "Your taste still leans {{genre}}.",
+    "bulkRateFeedbackSkipped": "You didn’t rate anything this time.",
+    "filterGenre": "Genre",
+    "filterPlatform": "Platform",
+    "filterAll": "All",
     "segments": {
+      "taste": "Taste",
       "watchlist": "Watchlist",
       "discards": "Discards",
-      "diary": "Diary"
+      "diary": "Watched"
     },
     "action": {
       "like": "In watchlist",
       "nope": "Discarded",
       "seen": "Seen but unrated"
+    }
+  },
+  "taste": {
+    "title": "Your taste",
+    "localOnly": "Sign in to see your taste profile and ratings.",
+    "signatureLabel": "Your signature",
+    "signatureEmpty": "Rate at least 10 titles to unlock your signature.",
+    "feedTuning": "Feed tuning up",
+    "feedTuned": "Feed tuned",
+    "statRated": "Rated",
+    "statPending": "Pending",
+    "statAverage": "Avg rating",
+    "tuningTitle": "Tune your radar",
+    "tuningBody": "{{rated}} of ~{{target}} signals · {{pending}} pending",
+    "tuningReadyBody": "Solid rating volume and a short pending queue. Your feed can lean on your taste.",
+    "rateFiveCta": "Rate 5 now",
+    "ratePendingCta": "Rate {{count}}",
+    "noPending": "No watched titles waiting for a rating.",
+    "histogramTitle": "Rating spread",
+    "histogramEmpty": "Once you rate, you’ll see how you distribute scores.",
+    "monthTitle": "This month",
+    "monthMark": "You rated {{count}} titles.",
+    "monthMarkHigh": "You rated {{count}} · {{highs}} scored 9 or 10.",
+    "monthMarkEmpty": "No ratings yet this month.",
+    "openDiary": "Open Watched",
+    "reelTitle": "Favorites reel",
+    "reelEmpty": "When you score a 9 or 10, your favorites show up here.",
+    "wrapOpenCta": "See your month in Match Cut",
+    "wrapLocked": "{{remaining}} more ratings this month unlock your recap.",
+    "wrapEyebrow": "Your month in Match Cut",
+    "wrapIntro": "A cut of what you rated.",
+    "wrapRated": "{{count}} titles rated",
+    "wrapAverage": "Average score {{avg}}",
+    "wrapGenreTitle": "Genres this month",
+    "wrapNoGenre": "Not enough signal for a genre line yet.",
+    "wrapHighs": "{{count}} nines and tens",
+    "wrapHighsBody": "Those do the most to push your radar.",
+    "months": {
+      "1": "January {{year}}",
+      "2": "February {{year}}",
+      "3": "March {{year}}",
+      "4": "April {{year}}",
+      "5": "May {{year}}",
+      "6": "June {{year}}",
+      "7": "July {{year}}",
+      "8": "August {{year}}",
+      "9": "September {{year}}",
+      "10": "October {{year}}",
+      "11": "November {{year}}",
+      "12": "December {{year}}"
     }
   },
   "detail": {
@@ -176,11 +296,14 @@
     "trailer": "Trailer",
     "providers": "Where to watch",
     "noProviders": "No availability found for your region.",
-    "cast": "Cast"
+    "cast": "Cast",
+    "tmdbRating": "{{rating}}"
   },
   "match": {
     "title": "Match!",
-    "body": "Everyone in the room voted yes."
+    "body": "Everyone said yes.",
+    "keepSwiping": "Keep swiping",
+    "viewTitle": "View title"
   },
   "justwatch": {
     "attribution": "Availability provided by JustWatch through TMDB"
@@ -200,11 +323,9 @@
     "themeSystem": "System",
     "signOut": "Sign out",
     "account": "Account & catalog",
-    "editRegion": "Change region",
-    "editPlatforms": "Change platforms",
-    "editDiscard": "Change discard policy",
-    "regionValue": "Region: {{region}}",
-    "platformsValue": "{{count}} platforms",
-    "discardValue": "Discards: {{policy}}"
+    "editRegion": "Region",
+    "editPlatforms": "Platforms",
+    "editDiscard": "Discard policy",
+    "platformsValue": "{{count}} platforms"
   }
 }

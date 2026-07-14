@@ -1,11 +1,31 @@
-import Constants from 'expo-constants';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import * as Device from 'expo-device';
-import * as Notifications from 'expo-notifications';
 
 import { supabase } from '@/lib/supabase';
 
-export async function registerPush(userId: string): Promise<string | null> {
+function isRemotePushAvailable(): boolean {
   if (!Device.isDevice) {
+    return false;
+  }
+
+  // Remote push was removed from Expo Go (Android SDK 53+). Skip import entirely.
+  if (Constants.executionEnvironment === ExecutionEnvironment.StoreClient) {
+    return false;
+  }
+
+  return true;
+}
+
+export async function registerPush(userId: string): Promise<string | null> {
+  if (!isRemotePushAvailable()) {
+    return null;
+  }
+
+  let Notifications: typeof import('expo-notifications');
+  try {
+    Notifications = await import('expo-notifications');
+  } catch (error) {
+    console.warn('Push notifications unavailable', error);
     return null;
   }
 
@@ -20,10 +40,11 @@ export async function registerPush(userId: string): Promise<string | null> {
   }
 
   const projectId =
-    Constants.expoConfig?.extra?.eas?.projectId ??
-    Constants.easConfig?.projectId;
+    Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
 
-  const token = (await Notifications.getExpoPushTokenAsync(projectId ? { projectId } : undefined)).data;
+  const token = (
+    await Notifications.getExpoPushTokenAsync(projectId ? { projectId } : undefined)
+  ).data;
 
   const { error } = await supabase
     .from('profiles')

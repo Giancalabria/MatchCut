@@ -51,6 +51,8 @@ function RootNavigator() {
         <Stack.Screen name="(onboarding)" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="search" />
+        <Stack.Screen name="settings" />
+        <Stack.Screen name="taste" />
         <Stack.Screen name="title/[mediaType]/[id]" />
         <Stack.Screen name="room/[id]" />
         <Stack.Screen name="+not-found" />

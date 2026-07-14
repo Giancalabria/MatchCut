@@ -16,7 +16,22 @@ Extiende al usuario autenticado.
 | `nope_cooldown_days` | int nullable (si policy = cooldown) |
 | `expo_push_token` | token Expo Push (nullable) |
 | `onboarding_completed` | bool — gate del Bloque 2 |
+| `liked_genre_ids` | int[] — géneros preferidos (calibración + uso en feed) |
+| `disliked_genre_ids` | int[] — géneros evitados |
+| `taste_profile` | jsonb — pesos de gusto (géneros, décadas, keywords, cast) recalculados por `personalized-feed` |
 | `created_at` / `updated_at` | |
+
+## `title_embeddings`
+
+Caché compartida de vectores por título (modelo `feature-v1`). Lectura autenticada; escritura solo vía Edge Functions (`service_role`).
+
+| Campo | Notas |
+|-------|--------|
+| `media_type`, `tmdb_id`, `model` | PK compuesta |
+| `embedding` | `double precision[]` (L2-normalizado) |
+| `dims` | longitud del vector |
+| `meta` | jsonb opcional (genre/keyword ids usados) |
+| `updated_at` | |
 
 ## `title_interactions`
 
@@ -32,6 +47,23 @@ Interacciones del modo solitario / bóveda personal.
 | `created_at` / `updated_at` | |
 
 Constraints sugeridos: único `(user_id, tmdb_id, media_type)` (una fila actual por título; updates al cambiar acción/rating).
+
+### Espejo local (cliente)
+
+La app mantiene un espejo en **Expo SQLite** de `title_interactions` (y de `room_swipes` propios + cache de `room_matches`). La UI de Bóveda / exclusión del feed lee local; las mutaciones encolan un **outbox** y se flushean a Supabase en background. Multi-dispositivo: last-write-wins por `updated_at`.
+
+### Calibración de gusto (onboarding)
+
+Durante la calibración, “me gustó” / “no me gustó” se persisten como `action = seen` **sin** `rating` (el usuario califica después en Vistas). Los `genre_ids` de cada título se acumulan en `profiles.liked_genre_ids` / `disliked_genre_ids`. “No la vi” no escribe fila.
+
+### Feed personalizado
+
+Edge Function `personalized-feed` (con fallback local en el cliente):
+
+- Semillas: likes, `seen` con rating ≥ 8, y `seen` sin rating si aún hay pocas semillas fuertes (cubre calibración).
+- Candidatos: TMDB similar + recommendations + discover diversificado + plataformas + trending.
+- Score: `α·heurística + β·similitud_embedding + γ·plataforma` con α/β/γ dinámicos según cantidad de interacciones (ver `mixWeightsFromSignals`).
+- Embeddings: Edge Function `title-embed` / helper compartido; modelo `feature-v1` (géneros, década, cast, keywords) sin API de IA externa.
 
 ### Feed: exclusión de nopes
 
@@ -71,6 +103,8 @@ Según `profiles.nope_policy`:
 
 Único por miembro+título en sala.
 
+Los votes propios se escriben primero en SQLite + outbox; al sincronizar, el trigger de match corre en Postgres. La celebración en cliente puede ser diferida hasta el pull de `room_matches`.
+
 ## `room_matches`
 
 | Campo | Notas |
@@ -84,6 +118,7 @@ Según `profiles.nope_policy`:
 
 - `profiles`: el usuario solo su fila.
 - `title_interactions`: solo propias.
+- Comparación entre miembros de sala: Edge Function **`room-taste-match`** (verifica membership; lee interactions/profiles peeres con `service_role` y devuelve score + confianza + sugerencias, sin ampliar SELECT al cliente).
 - `rooms` / members / swipes / matches: solo si el usuario es miembro de la sala.
 
 Detalle exacto de policies en migraciones; no abrir tablas al `anon` sin auth.

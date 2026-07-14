@@ -66,7 +66,20 @@ export async function callTmdb<T>(
 
 export type DiscoverFeedParams = Pick<
   TmdbParams,
-  'media_type' | 'region' | 'page' | 'with_genres' | 'with_runtime_lte' | 'language'
+  | 'media_type'
+  | 'region'
+  | 'page'
+  | 'with_genres'
+  | 'with_runtime_lte'
+  | 'with_watch_providers'
+  | 'with_watch_monetization_types'
+  | 'sort_by'
+  | 'vote_count_gte'
+  | 'primary_release_date_gte'
+  | 'primary_release_date_lte'
+  | 'first_air_date_gte'
+  | 'first_air_date_lte'
+  | 'language'
 >;
 
 export async function getDiscoverFeed(params: DiscoverFeedParams = {}): Promise<MediaItem[]> {
@@ -141,6 +154,26 @@ export async function getSimilar(
 ): Promise<MediaItem[]> {
   const response = await callTmdb<TmdbListResponse<MediaItem>>(
     'similar',
+    { media_type: mediaType, id, page, language },
+    {
+      page: 1,
+      results: [],
+      total_pages: 0,
+      total_results: 0,
+    },
+  );
+
+  return response.results;
+}
+
+export async function getRecommendations(
+  mediaType: MediaType,
+  id: number | string,
+  page?: number,
+  language?: string,
+): Promise<MediaItem[]> {
+  const response = await callTmdb<TmdbListResponse<MediaItem>>(
+    'recommendations',
     { media_type: mediaType, id, page, language },
     {
       page: 1,

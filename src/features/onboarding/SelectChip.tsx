@@ -20,14 +20,14 @@ export function SelectChip({
       style={[
         styles.chip,
         {
-          backgroundColor: selected ? colors.accent : colors.surface,
-          borderColor: selected ? colors.accent : colors.line,
+          backgroundColor: selected ? colors.cta : colors.surface,
+          borderColor: selected ? colors.cta : colors.line,
         },
       ]}
     >
       <Text
         style={{
-          color: selected ? '#FFFFFF' : colors.ink,
+          color: selected ? colors.onAccent : colors.ink,
           fontFamily: selected ? typography.bodyBold : typography.body,
           fontSize: 15,
         }}

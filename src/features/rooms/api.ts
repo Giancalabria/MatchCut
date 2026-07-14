@@ -193,6 +193,20 @@ export async function listMatches(roomId: string): Promise<RoomMatch[]> {
   return (data ?? []) as RoomMatch[];
 }
 
+export async function listRoomSwipes(roomId: string): Promise<RoomSwipe[]> {
+  const { data, error } = await supabase
+    .from('room_swipes')
+    .select('*')
+    .eq('room_id', roomId)
+    .order('updated_at', { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []) as RoomSwipe[];
+}
+
 export async function listRoomMembers(roomId: string): Promise<RoomMember[]> {
   const { data, error } = await supabase
     .from('room_members')

@@ -50,14 +50,18 @@ export default function PlatformsScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: t('settings.editPlatforms') }} />
+      <Stack.Screen options={{ title: isEdit ? t('settings.editPlatforms') : t('onboarding.platformsTitle') }} />
       <ScrollView contentContainerStyle={styles.content}>
-      <Text style={[styles.title, { color: colors.ink, fontFamily: typography.display }]}>
-        {t('onboarding.platformsTitle')}
-      </Text>
-      <Text style={[styles.subtitle, { color: colors.inkMuted, fontFamily: typography.body }]}>
-        {t('onboarding.platformsSubtitle')}
-      </Text>
+      {!isEdit ? (
+        <>
+          <Text style={[styles.title, { color: colors.ink, fontFamily: typography.display }]}>
+            {t('onboarding.platformsTitle')}
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.inkMuted, fontFamily: typography.body }]}>
+            {t('onboarding.platformsSubtitle')}
+          </Text>
+        </>
+      ) : null}
 
       <View style={styles.wrap}>
         {STREAMING_PLATFORMS.map((item) => (
@@ -80,12 +84,12 @@ export default function PlatformsScreen() {
         style={[
           styles.cta,
           {
-            backgroundColor: colors.accent,
+            backgroundColor: colors.cta,
             opacity: busy || selected.length === 0 ? 0.5 : 1,
           },
         ]}
       >
-        <Text style={[styles.ctaLabel, { fontFamily: typography.bodyBold }]}>
+        <Text style={[styles.ctaLabel, { fontFamily: typography.bodyBold, color: colors.onAccent }]}>
           {isEdit ? t('common.save') : t('common.continue')}
         </Text>
       </Pressable>
@@ -105,5 +109,5 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
   },
-  ctaLabel: { color: '#FFFFFF', fontSize: 16 },
+  ctaLabel: { fontSize: 16 },
 });

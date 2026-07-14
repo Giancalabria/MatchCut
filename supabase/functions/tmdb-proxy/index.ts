@@ -7,7 +7,15 @@ declare const Deno: {
   };
 };
 
-type TmdbAction = 'discover' | 'details' | 'similar' | 'videos' | 'providers' | 'trending' | 'search';
+type TmdbAction =
+  | 'discover'
+  | 'details'
+  | 'similar'
+  | 'recommendations'
+  | 'videos'
+  | 'providers'
+  | 'trending'
+  | 'search';
 type MediaType = 'movie' | 'tv';
 
 type CacheEntry = {
@@ -125,6 +133,14 @@ function buildTmdbUrl(searchParams: URLSearchParams, body: Record<string, unknow
   const page = paramFrom(searchParams, body, 'page');
   const withGenres = paramFrom(searchParams, body, 'with_genres');
   const withRuntimeLte = paramFrom(searchParams, body, 'with_runtime_lte');
+  const withWatchProviders = paramFrom(searchParams, body, 'with_watch_providers');
+  const withWatchMonetizationTypes = paramFrom(searchParams, body, 'with_watch_monetization_types');
+  const sortBy = paramFrom(searchParams, body, 'sort_by');
+  const voteCountGte = paramFrom(searchParams, body, 'vote_count_gte');
+  const primaryReleaseDateGte = paramFrom(searchParams, body, 'primary_release_date_gte');
+  const primaryReleaseDateLte = paramFrom(searchParams, body, 'primary_release_date_lte');
+  const firstAirDateGte = paramFrom(searchParams, body, 'first_air_date_gte');
+  const firstAirDateLte = paramFrom(searchParams, body, 'first_air_date_lte');
   const query = paramFrom(searchParams, body, 'query');
   const language = paramFrom(searchParams, body, 'language') ?? 'es-ES';
 
@@ -150,6 +166,12 @@ function buildTmdbUrl(searchParams: URLSearchParams, body: Record<string, unknow
         throw new Error('Missing id for similar');
       }
       path = `/${mediaType}/${id}/similar`;
+      break;
+    case 'recommendations':
+      if (!id) {
+        throw new Error('Missing id for recommendations');
+      }
+      path = `/${mediaType}/${id}/recommendations`;
       break;
     case 'videos':
       if (!id) {
@@ -193,6 +215,38 @@ function buildTmdbUrl(searchParams: URLSearchParams, body: Record<string, unknow
 
   if (withRuntimeLte) {
     tmdbUrl.searchParams.set('with_runtime_lte', withRuntimeLte);
+  }
+
+  if (withWatchProviders) {
+    tmdbUrl.searchParams.set('with_watch_providers', withWatchProviders);
+  }
+
+  if (withWatchMonetizationTypes) {
+    tmdbUrl.searchParams.set('with_watch_monetization_types', withWatchMonetizationTypes);
+  }
+
+  if (sortBy) {
+    tmdbUrl.searchParams.set('sort_by', sortBy);
+  }
+
+  if (voteCountGte) {
+    tmdbUrl.searchParams.set('vote_count.gte', voteCountGte);
+  }
+
+  if (primaryReleaseDateGte) {
+    tmdbUrl.searchParams.set('primary_release_date.gte', primaryReleaseDateGte);
+  }
+
+  if (primaryReleaseDateLte) {
+    tmdbUrl.searchParams.set('primary_release_date.lte', primaryReleaseDateLte);
+  }
+
+  if (firstAirDateGte) {
+    tmdbUrl.searchParams.set('first_air_date.gte', firstAirDateGte);
+  }
+
+  if (firstAirDateLte) {
+    tmdbUrl.searchParams.set('first_air_date.lte', firstAirDateLte);
   }
 
   if (query) {

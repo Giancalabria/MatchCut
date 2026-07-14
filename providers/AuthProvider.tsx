@@ -51,7 +51,16 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
     return null;
   }
 
-  return data as Profile | null;
+  if (!data) {
+    return null;
+  }
+
+  const row = data as Profile;
+  return {
+    ...row,
+    liked_genre_ids: Array.isArray(row.liked_genre_ids) ? row.liked_genre_ids : [],
+    disliked_genre_ids: Array.isArray(row.disliked_genre_ids) ? row.disliked_genre_ids : [],
+  };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -185,6 +194,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = useCallback(async () => {
+    try {
+      const { wipeLocalSyncData } = await import('@/providers/InteractionsProvider');
+      await wipeLocalSyncData();
+    } catch (err) {
+      console.warn('Failed to wipe local sync data', err);
+    }
+
     if (!isSupabaseConfigured) {
       setSession(null);
       setProfile(null);

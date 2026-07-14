@@ -74,6 +74,19 @@ export async function listByAction(action: InteractionAction): Promise<TitleInte
   return (data ?? []) as TitleInteraction[];
 }
 
+export async function listAllInteractions(): Promise<TitleInteraction[]> {
+  const { data, error } = await supabase
+    .from('title_interactions')
+    .select('*')
+    .order('updated_at', { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  return (data ?? []) as TitleInteraction[];
+}
+
 export async function setRating(
   tmdbId: number,
   mediaType: MediaType,
