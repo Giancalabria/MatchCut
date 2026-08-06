@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppText } from '@/src/ui/AppText';
 import { IconButton } from '@/src/ui/IconButton';
+import { layout, space } from '@/theme/spacing';
 
 export function ScreenHeader({
   title,
@@ -19,7 +20,12 @@ export function ScreenHeader({
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.row, showSafeTop ? { paddingTop: Math.max(insets.top, 8) } : null]}>
+    <View
+      style={[
+        styles.row,
+        showSafeTop ? { paddingTop: Math.max(insets.top, layout.safeTopMin) } : null,
+      ]}
+    >
       {onBack ? (
         <IconButton name="back" onPress={onBack} accessibilityLabel="Back" style={styles.backButton} />
       ) : (
@@ -41,7 +47,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: space.xs + 2,
     minHeight: 44,
   },
   title: {
@@ -51,7 +57,7 @@ const styles = StyleSheet.create({
   right: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: space.xs,
     minWidth: 40,
     justifyContent: 'flex-end',
   },

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { useThemeColors } from '@/providers/PreferencesProvider';
 import { MOVIE_GENRES, RUNTIME_PRESETS, TV_GENRES } from '@/src/features/filters/constants';
@@ -8,6 +8,9 @@ import type { MoodFilters } from '@/src/features/filters/types';
 import { SelectChip } from '@/src/features/onboarding/SelectChip';
 import { searchMedia } from '@/src/features/tmdb/client';
 import type { MediaItem, MediaType } from '@/src/features/tmdb/types';
+import { AppText, TextField } from '@/src/ui';
+import { radii } from '@/theme/radii';
+import { layout, space } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 
 type MoodFilterFieldsProps = {
@@ -83,9 +86,9 @@ export function MoodFilterFields({ value, onChange, showMediaType = true }: Mood
     <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       {showMediaType ? (
         <>
-          <Text style={[styles.label, { color: colors.inkMuted, fontFamily: typography.bodyMedium }]}>
+          <AppText muted variant="caption" style={styles.label}>
             {t('filters.mediaType')}
-          </Text>
+          </AppText>
           <View style={styles.row}>
             <SelectChip
               label={t('filters.movies')}
@@ -101,9 +104,9 @@ export function MoodFilterFields({ value, onChange, showMediaType = true }: Mood
         </>
       ) : null}
 
-      <Text style={[styles.label, { color: colors.inkMuted, fontFamily: typography.bodyMedium }]}>
+      <AppText muted variant="caption" style={styles.label}>
         {t('filters.genre')}
-      </Text>
+      </AppText>
       <View style={styles.row}>
         <SelectChip
           label={t('filters.anyGenre')}
@@ -120,9 +123,9 @@ export function MoodFilterFields({ value, onChange, showMediaType = true }: Mood
         ))}
       </View>
 
-      <Text style={[styles.label, { color: colors.inkMuted, fontFamily: typography.bodyMedium }]}>
+      <AppText muted variant="caption" style={styles.label}>
         {t('filters.maxRuntime')}
-      </Text>
+      </AppText>
       <View style={styles.row}>
         <SelectChip
           label={t('filters.anyRuntime')}
@@ -139,39 +142,29 @@ export function MoodFilterFields({ value, onChange, showMediaType = true }: Mood
         ))}
       </View>
 
-      <Text style={[styles.label, { color: colors.inkMuted, fontFamily: typography.bodyMedium }]}>
+      <AppText muted variant="caption" style={styles.label}>
         {t('filters.similarTo')}
-      </Text>
+      </AppText>
       {value.seedTitle ? (
-        <View style={[styles.seedSelected, { backgroundColor: colors.surface, borderColor: colors.accent }]}>
-          <Text style={{ color: colors.ink, fontFamily: typography.bodyMedium, flex: 1 }}>
-            {value.seedTitle}
-          </Text>
-          <Pressable onPress={clearSeed}>
-            <Text style={{ color: colors.nope, fontFamily: typography.bodyBold }}>×</Text>
+        <View style={[styles.seedSelected, { backgroundColor: colors.surface, borderColor: colors.cta }]}>
+          <AppText style={{ fontFamily: typography.bodyMedium, flex: 1 }}>{value.seedTitle}</AppText>
+          <Pressable onPress={clearSeed} hitSlop={8}>
+            <AppText color={colors.nope} style={{ fontFamily: typography.bodyBold }}>
+              ×
+            </AppText>
           </Pressable>
         </View>
       ) : (
         <>
-          <TextInput
+          <TextField
             value={seedQuery}
             onChangeText={setSeedQuery}
             placeholder={t('filters.seedPlaceholder')}
-            placeholderTextColor={colors.inkMuted}
-            style={[
-              styles.input,
-              {
-                backgroundColor: colors.surface,
-                borderColor: colors.line,
-                color: colors.ink,
-                fontFamily: typography.body,
-              },
-            ]}
           />
           {seedLoading ? (
-            <Text style={{ color: colors.inkMuted, fontFamily: typography.body, fontSize: 13 }}>
+            <AppText muted variant="caption">
               {t('filters.searching')}
-            </Text>
+            </AppText>
           ) : null}
           {seedResults.map((item) => (
             <Pressable
@@ -179,9 +172,7 @@ export function MoodFilterFields({ value, onChange, showMediaType = true }: Mood
               onPress={() => selectSeed(item)}
               style={[styles.seedResult, { backgroundColor: colors.surface, borderColor: colors.line }]}
             >
-              <Text style={{ color: colors.ink, fontFamily: typography.bodyMedium }}>
-                {titleLabel(item)}
-              </Text>
+              <AppText style={{ fontFamily: typography.bodyMedium }}>{titleLabel(item)}</AppText>
             </Pressable>
           ))}
         </>
@@ -191,29 +182,22 @@ export function MoodFilterFields({ value, onChange, showMediaType = true }: Mood
 }
 
 const styles = StyleSheet.create({
-  content: { gap: 10, paddingBottom: 8 },
-  label: { fontSize: 13, marginTop: 4 },
-  row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  input: {
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-  },
+  content: { gap: space.xs + 2, paddingBottom: space.xs },
+  label: { marginTop: space.xxs },
+  row: { flexDirection: 'row', flexWrap: 'wrap', gap: layout.inlineGap },
   seedSelected: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: layout.inlineGap,
     borderWidth: 1.5,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    borderRadius: radii.md,
+    paddingHorizontal: space.sm + 2,
+    paddingVertical: space.xs + 2,
   },
   seedResult: {
     borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    borderRadius: radii.md,
+    paddingHorizontal: space.sm,
+    paddingVertical: space.xs + 2,
   },
 });

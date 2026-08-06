@@ -8,6 +8,8 @@ import {
 
 import { useThemeColors } from '@/providers/PreferencesProvider';
 import { AppText } from '@/src/ui/AppText';
+import { radii } from '@/theme/radii';
+import { space } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 
 type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
@@ -74,7 +76,7 @@ export function Button({
         <ActivityIndicator color={textColor} />
       ) : (
         <AppText
-          variant="label"
+          variant="body"
           color={textColor}
           style={{ fontFamily: typography.bodyBold, fontSize: 15, lineHeight: 20 }}
         >
@@ -88,9 +90,9 @@ export function Button({
 const styles = StyleSheet.create({
   button: {
     borderWidth: 1.5,
-    borderRadius: 12,
-    paddingVertical: 13,
-    paddingHorizontal: 16,
+    borderRadius: radii.md,
+    paddingVertical: space.sm + 1,
+    paddingHorizontal: space.md,
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 44,

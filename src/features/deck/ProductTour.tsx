@@ -5,6 +5,8 @@ import { Modal, StyleSheet, View } from 'react-native';
 import { useThemeColors } from '@/providers/PreferencesProvider';
 import { getStoredString, setStoredString } from '@/lib/storage';
 import { AppText, Button } from '@/src/ui';
+import { radii } from '@/theme/radii';
+import { space } from '@/theme/spacing';
 
 const TOUR_KEY = 'app_product_tour_seen';
 
@@ -79,7 +81,7 @@ export function ProductTour() {
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={() => void dismiss()}>
-      <View style={styles.backdrop}>
+      <View style={[styles.backdrop, { backgroundColor: colors.scrim }]}>
         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.line }]}>
           <AppText muted style={styles.stepLabel}>
             {t('tour.stepProgress', { current: stepIndex + 1, total: steps.length })}
@@ -127,18 +129,17 @@ export function ProductTour() {
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
+    padding: space.xl,
   },
   card: {
     width: '100%',
     maxWidth: 400,
     borderWidth: 1,
-    borderRadius: 20,
-    padding: 22,
-    gap: 14,
+    borderRadius: radii.xl,
+    padding: space.lg + 2,
+    gap: space.sm + 2,
   },
   stepLabel: {
     fontSize: 13,
@@ -147,23 +148,23 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   bullets: {
-    gap: 8,
+    gap: space.xs,
   },
   dots: {
     flexDirection: 'row',
-    gap: 8,
+    gap: space.xs,
     justifyContent: 'center',
-    paddingVertical: 4,
+    paddingVertical: space.xxs,
   },
   dot: {
     width: 8,
     height: 8,
-    borderRadius: 4,
+    borderRadius: space.xxs,
   },
   actions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: space.xs,
   },
   nextButton: {
     flex: 1,

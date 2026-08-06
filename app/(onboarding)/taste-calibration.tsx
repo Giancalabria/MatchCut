@@ -1,7 +1,7 @@
 import { Stack, router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/providers/AuthProvider';
@@ -11,8 +11,8 @@ import { SwipeDeck } from '@/src/features/deck/SwipeDeck';
 import { CALIBRATION_MIN_ANSWERS, CALIBRATION_MOVIE_IDS } from '@/src/features/onboarding/calibrationTitles';
 import { loadCalibrationDeck } from '@/src/features/onboarding/loadCalibrationDeck';
 import type { MediaItem } from '@/src/features/tmdb/types';
-import { Button } from '@/src/ui';
-import { typography } from '@/theme/typography';
+import { AppText, Button } from '@/src/ui';
+import { layout, space } from '@/theme/spacing';
 
 function mergeGenreIds(current: number[], next: number[] | undefined): number[] {
   const set = new Set(current);
@@ -153,16 +153,16 @@ export default function TasteCalibrationScreen() {
   return (
     <>
       <Stack.Screen options={{ title: t('onboarding.tasteCalibrationTitle'), headerBackVisible: false }} />
-      <View style={[styles.root, { backgroundColor: colors.bg, paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <Text style={[styles.progress, { color: colors.inkMuted, fontFamily: typography.bodyMedium }]}>
+      <View style={[styles.root, { backgroundColor: colors.bg, paddingBottom: Math.max(insets.bottom, space.md) }]}>
+        <AppText variant="caption" muted style={styles.progress}>
           {t('onboarding.tasteProgress', { answered, total })}
-        </Text>
+        </AppText>
 
         <View style={styles.deckWrap}>
           {loading ? (
             <View style={styles.center}>
               <ActivityIndicator color={colors.cta} />
-              <Text style={{ color: colors.inkMuted, fontFamily: typography.body }}>{t('explore.loading')}</Text>
+              <AppText muted>{t('explore.loading')}</AppText>
             </View>
           ) : cards.length > 0 ? (
             <SwipeDeck
@@ -183,7 +183,9 @@ export default function TasteCalibrationScreen() {
             />
           ) : error ? (
             <View style={styles.center}>
-              <Text style={{ color: colors.nope, fontFamily: typography.body, textAlign: 'center' }}>{error}</Text>
+              <AppText color={colors.nope} style={styles.centerText}>
+                {error}
+              </AppText>
               <Button
                 label={t('onboarding.tasteFinishEarly')}
                 onPress={() => {
@@ -199,7 +201,9 @@ export default function TasteCalibrationScreen() {
         </View>
 
         {error && cards.length > 0 ? (
-          <Text style={{ color: colors.nope, fontFamily: typography.body, textAlign: 'center' }}>{error}</Text>
+          <AppText color={colors.nope} style={styles.centerText}>
+            {error}
+          </AppText>
         ) : null}
 
         {canFinishEarly ? (
@@ -220,12 +224,11 @@ export default function TasteCalibrationScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    gap: 12,
+    paddingHorizontal: layout.screenPaddingXCompact,
+    paddingTop: space.xs,
+    gap: space.sm,
   },
   progress: {
-    fontSize: 14,
     textAlign: 'center',
   },
   deckWrap: {
@@ -235,6 +238,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
+    gap: space.sm,
+  },
+  centerText: {
+    textAlign: 'center',
   },
 });

@@ -2,7 +2,6 @@ import { router, useLocalSearchParams, type Href } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/providers/AuthProvider';
 import { useInteractions } from '@/providers/InteractionsProvider';
@@ -11,7 +10,9 @@ import type { TitleInteraction } from '@/src/features/interactions/api';
 import { TasteDashboardPanel } from '@/src/features/taste/TasteDashboardPanel';
 import { BulkRatingSession } from '@/src/features/vault/BulkRatingSession';
 import { TitleCollection } from '@/src/features/vault/TitleCollection';
-import { AppText, Button, IconButton } from '@/src/ui';
+import { AppText, Button, IconButton, TabScreenHeader } from '@/src/ui';
+import { radii } from '@/theme/radii';
+import { layout, space } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 
 type Segment = 'taste' | 'watchlist' | 'discards' | 'diary';
@@ -30,7 +31,6 @@ function parseSegment(value: string | string[] | undefined): Segment | null {
 export default function VaultScreen() {
   const { t } = useTranslation();
   const colors = useThemeColors();
-  const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ openBulk?: string; segment?: string }>();
   const { isConfigured } = useAuth();
   const { ready, listByAction, restoreNope, upsert, setRating } = useInteractions();
@@ -83,23 +83,18 @@ export default function VaultScreen() {
   }
 
   return (
-    <View
-      style={[
-        styles.root,
-        { backgroundColor: colors.bg, paddingTop: Math.max(insets.top, 12) },
-      ]}
-    >
+    <View style={[styles.root, { backgroundColor: colors.bg }]}>
       <View style={styles.headerBlock}>
-        <View style={styles.header}>
-          <AppText variant="display" style={styles.flex}>
-            {t('vault.title')}
-          </AppText>
-          <IconButton
-            name="settings"
-            onPress={() => router.push('/settings' as Href)}
-            accessibilityLabel={t('settings.title')}
-          />
-        </View>
+        <TabScreenHeader
+          title={t('vault.title')}
+          right={
+            <IconButton
+              name="settings"
+              onPress={() => router.push('/settings' as Href)}
+              accessibilityLabel={t('settings.title')}
+            />
+          }
+        />
 
         <View style={[styles.segmentTrack, { backgroundColor: colors.surface }]}>
           {SEGMENTS.map((item) => (
@@ -243,29 +238,23 @@ export default function VaultScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    paddingHorizontal: 24,
-    gap: 14,
+    paddingHorizontal: layout.screenPaddingX,
+    gap: space.sm + 2,
   },
   headerBlock: {
-    gap: 14,
+    gap: space.sm + 2,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  flex: { flex: 1 },
   segmentTrack: {
     flexDirection: 'row',
-    borderRadius: 12,
-    padding: 4,
-    gap: 4,
+    borderRadius: radii.md,
+    padding: space.xxs,
+    gap: space.xxs,
   },
   segmentButton: {
     flex: 1,
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 4,
+    borderRadius: radii.sm + 2,
+    paddingVertical: space.xs + 2,
+    paddingHorizontal: space.xxs,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -24,7 +24,9 @@ import { RoomTasteMatch } from '@/src/features/rooms/RoomTasteMatch';
 import { getDetails } from '@/src/features/tmdb/client';
 import { posterUrl } from '@/src/features/tmdb/images';
 import type { MediaItem, MediaType } from '@/src/features/tmdb/types';
-import { AppText, Button, ScreenHeader } from '@/src/ui';
+import { AppText, Button, Chip, ScreenHeader } from '@/src/ui';
+import { radii } from '@/theme/radii';
+import { layout, space } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 
 function resolveMediaType(item: MediaItem): MediaType {
@@ -205,7 +207,10 @@ export default function RoomScreen() {
   return (
     <ScrollView
       style={[styles.root, { backgroundColor: colors.bg }]}
-      contentContainerStyle={[styles.content, { paddingTop: Math.max(insets.top, 8) }]}
+      contentContainerStyle={[
+        styles.content,
+        { paddingTop: Math.max(insets.top, layout.safeTopMin) },
+      ]}
     >
       <ScreenHeader
         title={t('rooms.roomName', { code: room.invite_code })}
@@ -243,24 +248,14 @@ export default function RoomScreen() {
       <AppText variant="section">{t('rooms.catalogOwner')}</AppText>
       <View style={styles.memberRow}>
         {members.map((member, index) => (
-          <Pressable
+          <Chip
             key={member.user_id}
+            label={member.role === 'host' ? t('rooms.host') : `${t('rooms.member')} ${index + 1}`}
+            selected={room.catalog_owner_id === member.user_id}
             onPress={() => {
               void handleSetCatalogOwner(member.user_id);
             }}
-            style={[
-              styles.memberChip,
-              {
-                borderColor: room.catalog_owner_id === member.user_id ? colors.cta : colors.line,
-                backgroundColor:
-                  room.catalog_owner_id === member.user_id ? colors.accentSoft : colors.surface,
-              },
-            ]}
-          >
-            <AppText variant="label">
-              {member.role === 'host' ? t('rooms.host') : `${t('rooms.member')} ${index + 1}`}
-            </AppText>
-          </Pressable>
+          />
         ))}
       </View>
 
@@ -286,8 +281,8 @@ export default function RoomScreen() {
             ) : (
               <View style={[styles.matchPoster, { backgroundColor: colors.line }]} />
             )}
-            <View style={{ flex: 1, gap: 4 }}>
-              <AppText style={{ fontFamily: typography.bodyBold, fontSize: 15 }} numberOfLines={2}>
+            <View style={styles.matchInfo}>
+              <AppText variant="section" numberOfLines={2}>
                 {row.title}
               </AppText>
               <AppText variant="label" muted>
@@ -314,18 +309,28 @@ export default function RoomScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  content: { paddingHorizontal: 20, paddingBottom: 40, gap: 12 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 16 },
-  memberRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  memberChip: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 8 },
+  content: {
+    paddingHorizontal: layout.screenPaddingXCompact,
+    paddingBottom: space.xxxl,
+    gap: layout.stackGap,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: space.xl,
+    gap: space.md,
+  },
+  memberRow: { flexDirection: 'row', flexWrap: 'wrap', gap: layout.inlineGap },
   deckArea: { height: 560 },
   matchRow: {
     borderWidth: 1,
-    borderRadius: 14,
-    padding: 10,
+    borderRadius: radii.lg,
+    padding: space.xs + 2,
     flexDirection: 'row',
-    gap: 12,
+    gap: space.sm,
     alignItems: 'center',
   },
-  matchPoster: { width: 48, height: 72, borderRadius: 8 },
+  matchInfo: { flex: 1, gap: space.xxs },
+  matchPoster: { width: 48, height: 72, borderRadius: radii.sm },
 });

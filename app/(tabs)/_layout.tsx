@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/providers/AuthProvider';
 import { useThemeColors } from '@/providers/PreferencesProvider';
 import { AppIcon } from '@/src/ui/AppIcon';
-import { typography } from '@/theme/typography';
+import { typeScale } from '@/theme/typography';
 
 export default function TabsLayout() {
   const { t } = useTranslation();
@@ -42,7 +42,10 @@ export default function TabsLayout() {
         },
         tabBarActiveTintColor: colors.cta,
         tabBarInactiveTintColor: colors.inkMuted,
-        tabBarLabelStyle: { fontFamily: typography.bodyMedium, fontSize: 12 },
+        tabBarLabelStyle: {
+          fontFamily: typeScale.label.fontFamily,
+          fontSize: typeScale.label.fontSize,
+        },
       }}
     >
       <Tabs.Screen

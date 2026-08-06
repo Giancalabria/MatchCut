@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   cancelAnimation,
@@ -18,6 +18,9 @@ import Animated, {
 import { useThemeColors } from '@/providers/PreferencesProvider';
 import { posterUrl } from '@/src/features/tmdb/images';
 import type { MediaItem } from '@/src/features/tmdb/types';
+import { AppText } from '@/src/ui';
+import { radii } from '@/theme/radii';
+import { space } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 
 type SwipeDirection = 'like' | 'nope' | 'seen';
@@ -183,47 +186,64 @@ export function SwipeDeck({
               style={[
                 styles.stamp,
                 styles.stampLike,
-                { borderColor: colors.accent, backgroundColor: 'rgba(0, 168, 150, 0.88)' },
+                { borderColor: colors.accent, backgroundColor: colors.stampLike },
                 likeStampStyle,
               ]}
             >
-              <Text style={[styles.stampText, { color: '#FFFFFF', fontFamily: typography.bodyBold }]}>
+              <AppText
+                color={colors.onPoster}
+                style={[styles.stampText, { fontFamily: typography.bodyBold }]}
+              >
                 {likeLabel}
-              </Text>
+              </AppText>
             </Animated.View>
             <Animated.View
               style={[
                 styles.stamp,
                 styles.stampNope,
-                { borderColor: colors.nope, backgroundColor: 'rgba(228, 87, 76, 0.88)' },
+                { borderColor: colors.nope, backgroundColor: colors.stampNope },
                 nopeStampStyle,
               ]}
             >
-              <Text style={[styles.stampText, { color: '#FFFFFF', fontFamily: typography.bodyBold }]}>
+              <AppText
+                color={colors.onPoster}
+                style={[styles.stampText, { fontFamily: typography.bodyBold }]}
+              >
                 {nopeLabel}
-              </Text>
+              </AppText>
             </Animated.View>
             <Animated.View
               style={[
                 styles.stamp,
                 styles.stampSeen,
-                { borderColor: colors.seen, backgroundColor: 'rgba(232, 163, 23, 0.9)' },
+                { borderColor: colors.seen, backgroundColor: colors.stampSeen },
                 seenStampStyle,
               ]}
             >
-              <Text style={[styles.stampText, { color: '#1A1A1A', fontFamily: typography.bodyBold }]}>
+              <AppText
+                color={colors.onAccent}
+                style={[styles.stampText, { fontFamily: typography.bodyBold }]}
+              >
                 {seenLabel}
-              </Text>
+              </AppText>
             </Animated.View>
-            <LinearGradient colors={['transparent', 'rgba(0,0,0,0.82)']} style={styles.caption}>
-              <Text style={[styles.title, { fontFamily: typography.display }]} numberOfLines={2}>
+            <LinearGradient colors={['transparent', colors.posterScrim]} style={styles.caption}>
+              <AppText
+                color={colors.onPoster}
+                numberOfLines={2}
+                style={[styles.title, { fontFamily: typography.display }]}
+              >
                 {titleFor(active)}
-              </Text>
-              <Text style={[styles.meta, { fontFamily: typography.bodyMedium }]} numberOfLines={2}>
+              </AppText>
+              <AppText
+                color={colors.onPosterMuted}
+                numberOfLines={2}
+                style={[styles.meta, { fontFamily: typography.bodyMedium }]}
+              >
                 {[yearFor(active), active.vote_average ? active.vote_average.toFixed(1) : null]
                   .filter(Boolean)
                   .join(' • ')}
-              </Text>
+              </AppText>
             </LinearGradient>
           </Pressable>
         </Animated.View>
@@ -246,9 +266,9 @@ function Poster({ item, muted = false }: { item: MediaItem; muted?: boolean }) {
           transition={180}
         />
       ) : (
-        <Text style={{ color: colors.inkMuted, fontFamily: typography.bodyMedium, textAlign: 'center' }}>
+        <AppText muted style={{ fontFamily: typography.bodyMedium, textAlign: 'center' }}>
           {titleFor(item)}
-        </Text>
+        </AppText>
       )}
     </View>
   );
@@ -266,7 +286,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     left: 0,
-    borderRadius: 28,
+    borderRadius: radii.deck,
     borderWidth: 3,
     overflow: 'hidden',
     shadowColor: '#000',
@@ -298,9 +318,9 @@ const styles = StyleSheet.create({
   stamp: {
     position: 'absolute',
     borderWidth: 4,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    borderRadius: radii.md,
+    paddingHorizontal: space.md,
+    paddingVertical: space.xs + 2,
     shadowColor: '#000',
     shadowOpacity: 0.35,
     shadowRadius: 8,
@@ -331,16 +351,14 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    padding: 22,
+    padding: space.lg + 2,
     paddingTop: 80,
-    gap: 4,
+    gap: space.xxs,
   },
   title: {
-    color: '#FFFFFF',
     fontSize: 28,
   },
   meta: {
-    color: 'rgba(255,255,255,0.78)',
     fontSize: 14,
   },
 });

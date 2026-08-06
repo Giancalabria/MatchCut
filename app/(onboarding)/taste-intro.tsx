@@ -1,10 +1,11 @@
 import { Stack, router, type Href } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { useThemeColors } from '@/providers/PreferencesProvider';
-import { Button } from '@/src/ui';
-import { typography } from '@/theme/typography';
+import { AppText, Button } from '@/src/ui';
+import { radii } from '@/theme/radii';
+import { layout, space } from '@/theme/spacing';
 
 export default function TasteIntroScreen() {
   const { t } = useTranslation();
@@ -14,31 +15,19 @@ export default function TasteIntroScreen() {
     <>
       <Stack.Screen options={{ title: t('onboarding.tasteIntroTitle') }} />
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={[styles.title, { color: colors.ink, fontFamily: typography.display }]}>
-          {t('onboarding.tasteIntroTitle')}
-        </Text>
-        <Text style={[styles.subtitle, { color: colors.inkMuted, fontFamily: typography.body }]}>
-          {t('onboarding.tasteIntroBody')}
-        </Text>
+        <AppText variant="display">{t('onboarding.tasteIntroTitle')}</AppText>
+        <AppText muted>{t('onboarding.tasteIntroBody')}</AppText>
 
         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.line }]}>
-          <Text style={[styles.gestureTitle, { color: colors.ink, fontFamily: typography.bodyBold }]}>
-            {t('onboarding.tasteGesturesTitle')}
-          </Text>
-          <Text style={[styles.gestureLine, { color: colors.accent, fontFamily: typography.body }]}>
-            {t('onboarding.tasteGestureLike')}
-          </Text>
-          <Text style={[styles.gestureLine, { color: colors.nope, fontFamily: typography.body }]}>
-            {t('onboarding.tasteGestureNope')}
-          </Text>
-          <Text style={[styles.gestureLine, { color: colors.seen, fontFamily: typography.body }]}>
-            {t('onboarding.tasteGestureUnseen')}
-          </Text>
+          <AppText variant="section">{t('onboarding.tasteGesturesTitle')}</AppText>
+          <AppText color={colors.accent}>{t('onboarding.tasteGestureLike')}</AppText>
+          <AppText color={colors.nope}>{t('onboarding.tasteGestureNope')}</AppText>
+          <AppText color={colors.seen}>{t('onboarding.tasteGestureUnseen')}</AppText>
         </View>
 
-        <Text style={[styles.note, { color: colors.inkMuted, fontFamily: typography.body }]}>
+        <AppText variant="caption" muted>
           {t('onboarding.tasteIntroNote')}
-        </Text>
+        </AppText>
 
         <Button
           label={t('onboarding.tasteIntroCta')}
@@ -50,16 +39,15 @@ export default function TasteIntroScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: { padding: 24, gap: 16, paddingBottom: 40 },
-  title: { fontSize: 28 },
-  subtitle: { fontSize: 16, lineHeight: 24 },
+  content: {
+    padding: layout.screenPaddingX,
+    gap: space.md,
+    paddingBottom: space.xxxl,
+  },
   card: {
     borderWidth: 1,
-    borderRadius: 16,
-    padding: 16,
-    gap: 10,
+    borderRadius: radii.lg,
+    padding: space.md,
+    gap: space.xs + 2,
   },
-  gestureTitle: { fontSize: 15, marginBottom: 4 },
-  gestureLine: { fontSize: 15, lineHeight: 22 },
-  note: { fontSize: 14, lineHeight: 20 },
 });

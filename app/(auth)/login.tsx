@@ -2,13 +2,10 @@ import { useState } from 'react';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import {
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   StyleSheet,
-  Text,
-  TextInput,
   View,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -16,7 +13,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/providers/AuthProvider';
 import { useThemeColors } from '@/providers/PreferencesProvider';
-import { typography } from '@/theme/typography';
+import { AppText, Button, TextField } from '@/src/ui';
+import { layout, space } from '@/theme/spacing';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
@@ -57,79 +55,47 @@ export default function LoginScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.form}
         >
-          <Text style={[styles.brand, { color: colors.ink, fontFamily: typography.display }]}>
+          <AppText variant="hero" style={styles.brand}>
             {t('auth.title')}
-          </Text>
-          <Text style={[styles.subtitle, { color: colors.inkMuted, fontFamily: typography.body }]}>
+          </AppText>
+          <AppText variant="section" muted style={styles.subtitle}>
             {t('auth.subtitle')}
-          </Text>
+          </AppText>
 
           {!isConfigured ? (
             <>
-              <Text style={[styles.hint, { color: colors.inkMuted, fontFamily: typography.body }]}>
+              <AppText muted style={styles.hint}>
                 {t('auth.supabaseMissing')}
-              </Text>
-              <Pressable
-                style={[styles.primaryButton, { backgroundColor: colors.cta }]}
-                onPress={() => router.replace('/(tabs)/explore')}
-              >
-                <Text style={[styles.primaryLabel, { fontFamily: typography.bodyBold, color: colors.onAccent }]}>
-                  {t('auth.enterApp')}
-                </Text>
-              </Pressable>
+              </AppText>
+              <Button label={t('auth.enterApp')} onPress={() => router.replace('/(tabs)/explore')} />
             </>
           ) : (
             <>
-              <TextInput
+              <TextField
                 autoCapitalize="none"
                 autoComplete="email"
                 keyboardType="email-address"
                 placeholder={t('auth.email')}
-                placeholderTextColor={colors.inkMuted}
                 value={email}
                 onChangeText={setEmail}
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: colors.surface,
-                    borderColor: colors.line,
-                    color: colors.ink,
-                    fontFamily: typography.body,
-                  },
-                ]}
               />
-              <TextInput
+              <TextField
                 secureTextEntry
                 placeholder={t('auth.password')}
-                placeholderTextColor={colors.inkMuted}
                 value={password}
                 onChangeText={setPassword}
-                style={[
-                  styles.input,
-                  {
-                    backgroundColor: colors.surface,
-                    borderColor: colors.line,
-                    color: colors.ink,
-                    fontFamily: typography.body,
-                  },
-                ]}
               />
 
               {error ? (
-                <Text style={[styles.error, { color: colors.nope, fontFamily: typography.body }]}>
+                <AppText color={colors.nope} variant="caption">
                   {error}
-                </Text>
+                </AppText>
               ) : null}
 
-              <Pressable
-                disabled={busy || !email || password.length < 6}
-                style={[
-                  styles.primaryButton,
-                  {
-                    backgroundColor: colors.cta,
-                    opacity: busy || !email || password.length < 6 ? 0.5 : 1,
-                  },
-                ]}
+              <Button
+                label={mode === 'signin' ? t('auth.signIn') : t('auth.signUp')}
+                loading={busy}
+                disabled={!email || password.length < 6}
                 onPress={() =>
                   run(() =>
                     mode === 'signin'
@@ -137,55 +103,38 @@ export default function LoginScreen() {
                       : signUpWithEmail(email.trim(), password),
                   )
                 }
-              >
-                {busy ? (
-                  <ActivityIndicator color={colors.onAccent} />
-                ) : (
-                  <Text style={[styles.primaryLabel, { fontFamily: typography.bodyBold, color: colors.onAccent }]}>
-                    {mode === 'signin' ? t('auth.signIn') : t('auth.signUp')}
-                  </Text>
-                )}
-              </Pressable>
+              />
 
               <Pressable onPress={() => setMode(mode === 'signin' ? 'signup' : 'signin')}>
-                <Text
-                  style={[styles.switchMode, { color: colors.accent, fontFamily: typography.bodyMedium }]}
+                <AppText
+                  variant="caption"
+                  color={colors.accentDeep}
+                  style={styles.switchMode}
                 >
                   {mode === 'signin' ? t('auth.needAccount') : t('auth.haveAccount')}
-                </Text>
+                </AppText>
               </Pressable>
 
-              <View style={[styles.dividerRow]}>
+              <View style={styles.dividerRow}>
                 <View style={[styles.divider, { backgroundColor: colors.line }]} />
-                <Text style={{ color: colors.inkMuted, fontFamily: typography.body, fontSize: 13 }}>
+                <AppText variant="caption" muted>
                   {t('auth.or')}
-                </Text>
+                </AppText>
                 <View style={[styles.divider, { backgroundColor: colors.line }]} />
               </View>
 
-              <Pressable
+              <Button
+                variant="secondary"
+                label={t('auth.continueGoogle')}
                 disabled={busy}
-                style={[styles.secondaryButton, { borderColor: colors.line }]}
                 onPress={() => run(() => signInWithGoogle())}
-              >
-                <Text
-                  style={[styles.secondaryLabel, { color: colors.ink, fontFamily: typography.bodyMedium }]}
-                >
-                  {t('auth.continueGoogle')}
-                </Text>
-              </Pressable>
-
-              <Pressable
+              />
+              <Button
+                variant="secondary"
+                label={t('auth.continueApple')}
                 disabled={busy}
-                style={[styles.secondaryButton, { borderColor: colors.line }]}
                 onPress={() => run(() => signInWithApple())}
-              >
-                <Text
-                  style={[styles.secondaryLabel, { color: colors.ink, fontFamily: typography.bodyMedium }]}
-                >
-                  {t('auth.continueApple')}
-                </Text>
-              </Pressable>
+              />
             </>
           )}
         </KeyboardAvoidingView>
@@ -199,60 +148,28 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   form: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: layout.screenPaddingX,
     justifyContent: 'center',
-    gap: 12,
+    gap: space.sm,
   },
   brand: {
-    fontSize: 40,
     letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 17,
-    lineHeight: 24,
-    marginBottom: 12,
+    marginBottom: space.sm,
   },
   hint: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-  },
-  error: { fontSize: 14 },
-  primaryButton: {
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  primaryLabel: {
-    fontSize: 16,
-  },
-  secondaryButton: {
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-    borderWidth: 1,
-  },
-  secondaryLabel: {
-    fontSize: 16,
+    marginBottom: space.xs,
   },
   switchMode: {
     textAlign: 'center',
-    fontSize: 14,
-    marginTop: 4,
+    marginTop: space.xxs,
   },
   dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    marginVertical: 4,
+    gap: space.xs + 2,
+    marginVertical: space.xxs,
   },
   divider: {
     flex: 1,

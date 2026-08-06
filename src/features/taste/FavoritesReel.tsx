@@ -9,6 +9,8 @@ import type { FavoritesReelItem } from '@/src/features/taste/monthWrap';
 import { getCachedVaultSnapshot } from '@/src/features/tmdb/cache';
 import { posterUrl } from '@/src/features/tmdb/images';
 import { AppText } from '@/src/ui';
+import { radii } from '@/theme/radii';
+import { space } from '@/theme/spacing';
 
 type ReelRow = FavoritesReelItem & {
   title: string;
@@ -88,9 +90,9 @@ export function FavoritesReel({
 }
 
 const styles = StyleSheet.create({
-  row: { gap: 10, paddingVertical: 4 },
-  item: { width: 92, gap: 4 },
-  poster: { width: 92, height: 138, borderRadius: 12 },
+  row: { gap: space.xs + 2, paddingVertical: space.xxs },
+  item: { width: 92, gap: space.xxs },
+  poster: { width: 92, height: 138, borderRadius: radii.md },
   rating: { textAlign: 'center' },
   title: { minHeight: 28 },
 });

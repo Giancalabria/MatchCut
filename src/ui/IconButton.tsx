@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, type StyleProp, type ViewStyle } from 'react-nat
 import { useThemeColors } from '@/providers/PreferencesProvider';
 import { AppIcon } from '@/src/ui/AppIcon';
 import type { AppIconName } from '@/src/ui/icons';
+import { radii } from '@/theme/radii';
 
 export function IconButton({
   name,
@@ -43,7 +44,7 @@ const styles = StyleSheet.create({
   button: {
     width: 40,
     height: 40,
-    borderRadius: 12,
+    borderRadius: radii.md,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',

@@ -7,7 +7,10 @@
     "back": "Volver",
     "continue": "Continuar",
     "skip": "Omitir",
-    "comingSoon": "Próximamente"
+    "comingSoon": "Próximamente",
+    "notFoundTitle": "Ups",
+    "notFoundBody": "Pantalla no encontrada",
+    "notFoundCta": "Ir a Explorar"
   },
   "tabs": {
     "explore": "Explorar",

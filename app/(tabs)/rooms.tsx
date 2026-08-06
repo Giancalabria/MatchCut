@@ -7,10 +7,8 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  TextInput,
   View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/providers/AuthProvider';
 import { useThemeColors } from '@/providers/PreferencesProvider';
@@ -21,15 +19,15 @@ import {
   type PlatformStrategy,
   type Room,
 } from '@/src/features/rooms/api';
-import { AppIcon, AppText, Button } from '@/src/ui';
-import { typography } from '@/theme/typography';
+import { AppIcon, AppText, Button, TabScreenHeader, TextField } from '@/src/ui';
+import { radii } from '@/theme/radii';
+import { layout, space } from '@/theme/spacing';
 
 const STRATEGIES: PlatformStrategy[] = ['intersection', 'catalog_owner', 'union', 'full'];
 
 export default function RoomsScreen() {
   const { t } = useTranslation();
   const colors = useThemeColors();
-  const insets = useSafeAreaInsets();
   const { isConfigured } = useAuth();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(false);
@@ -93,29 +91,17 @@ export default function RoomsScreen() {
 
   return (
     <ScrollView
-      contentContainerStyle={[
-        styles.root,
-        { backgroundColor: colors.bg, paddingTop: Math.max(insets.top, 12) },
-      ]}
+      contentContainerStyle={[styles.root, { backgroundColor: colors.bg }]}
     >
-      <AppText variant="display">{t('rooms.title')}</AppText>
+      <TabScreenHeader title={t('rooms.title')} />
 
       <View style={styles.joinRow}>
-        <TextInput
+        <TextField
           value={inviteCode}
           onChangeText={(value) => setInviteCode(value.toUpperCase())}
           placeholder={t('rooms.inviteCode')}
-          placeholderTextColor={colors.inkMuted}
           autoCapitalize="characters"
-          style={[
-            styles.input,
-            {
-              borderColor: colors.line,
-              color: colors.ink,
-              backgroundColor: colors.surface,
-              fontFamily: typography.body,
-            },
-          ]}
+          style={styles.input}
         />
         <Button label={t('rooms.join')} onPress={() => void handleJoin()} style={styles.joinButton} />
       </View>
@@ -135,8 +121,8 @@ export default function RoomsScreen() {
           onPress={() => router.push({ pathname: '/room/[id]', params: { id: room.id } })}
           style={[styles.roomCard, { backgroundColor: colors.surface, borderColor: colors.line }]}
         >
-          <View style={{ flex: 1 }}>
-            <AppText style={{ fontFamily: typography.bodyBold, fontSize: 17 }}>
+          <View style={styles.flex}>
+            <AppText variant="section">
               {t('rooms.roomName', { code: room.invite_code })}
             </AppText>
             <AppText variant="caption" muted>
@@ -148,7 +134,7 @@ export default function RoomsScreen() {
       ))}
 
       <Modal visible={modalOpen} transparent animationType="slide" onRequestClose={() => setModalOpen(false)}>
-        <View style={styles.modalBackdrop}>
+        <View style={[styles.modalBackdrop, { backgroundColor: colors.scrim }]}>
           <View style={[styles.modal, { backgroundColor: colors.surface }]}>
             <AppText variant="title">{t('rooms.create')}</AppText>
             {STRATEGIES.map((item) => (
@@ -163,7 +149,7 @@ export default function RoomsScreen() {
                   },
                 ]}
               >
-                <AppText style={{ fontFamily: typography.bodyBold, fontSize: 14 }}>
+                <AppText variant="caption" style={styles.strategyLabel}>
                   {t(`rooms.strategy.${item}`)}
                 </AppText>
               </Pressable>
@@ -173,9 +159,9 @@ export default function RoomsScreen() {
                 label={t('common.cancel')}
                 variant="ghost"
                 onPress={() => setModalOpen(false)}
-                style={{ flex: 1 }}
+                style={styles.flex}
               />
-              <Button label={t('rooms.create')} onPress={() => void handleCreate()} style={{ flex: 1 }} />
+              <Button label={t('rooms.create')} onPress={() => void handleCreate()} style={styles.flex} />
             </View>
           </View>
         </View>
@@ -187,23 +173,30 @@ export default function RoomsScreen() {
 const styles = StyleSheet.create({
   root: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    gap: 12,
-    paddingBottom: 40,
+    paddingHorizontal: layout.screenPaddingX,
+    gap: space.sm,
+    paddingBottom: space.xxxl,
   },
-  joinRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
-  input: { flex: 1, borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12 },
+  joinRow: { flexDirection: 'row', gap: space.xs, alignItems: 'center' },
+  input: { flex: 1 },
   joinButton: { minWidth: 96 },
+  flex: { flex: 1 },
   roomCard: {
     borderWidth: 1,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: radii.lg,
+    padding: space.md,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: space.xs,
   },
-  modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'flex-end' },
-  modal: { borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, gap: 12 },
-  strategy: { borderWidth: 1.5, borderRadius: 12, padding: 14 },
-  modalActions: { flexDirection: 'row', gap: 10, marginTop: 8 },
+  modalBackdrop: { flex: 1, justifyContent: 'flex-end' },
+  modal: {
+    borderTopLeftRadius: radii.xl + 4,
+    borderTopRightRadius: radii.xl + 4,
+    padding: layout.screenPaddingX,
+    gap: space.sm,
+  },
+  strategy: { borderWidth: 1.5, borderRadius: radii.md, padding: space.sm + 2 },
+  strategyLabel: { fontWeight: '700' },
+  modalActions: { flexDirection: 'row', gap: space.xs + 2, marginTop: space.xs },
 });

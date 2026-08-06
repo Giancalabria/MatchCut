@@ -17,44 +17,77 @@ export type ColorTokens = {
   seen: string;
   match: string;
   line: string;
+  /** Modal / sheet backdrop */
+  scrim: string;
+  /** Stamp overlays on swipe cards */
+  stampLike: string;
+  stampNope: string;
+  stampSeen: string;
+  /** Gradient stop over posters */
+  posterScrim: string;
+  /** Text/icons on dark poster media */
+  onPoster: string;
+  onPosterMuted: string;
+  /** Native shadow / cinematic black cut */
+  shadow: string;
+  cutWipe: string;
 };
 
+/** A1 Hot amber — Tungsten vivid */
 export const lightColors: ColorTokens = {
-  bg: '#D8E0E8',
-  bgGlow: '#C5E8E0',
-  surface: '#FFFFFF',
-  ink: '#0E151B',
-  inkMuted: '#4A5A68',
-  accent: '#00A896',
-  accentDeep: '#007F73',
-  cta: '#007F73',
+  bg: '#F0E8DC',
+  bgGlow: '#FFE7B8',
+  surface: '#FFFCF7',
+  ink: '#1A1208',
+  inkMuted: '#6A5A48',
+  accent: '#E8940A',
+  accentDeep: '#C97800',
+  cta: '#C97800',
   onAccent: '#FFFFFF',
-  accentSoft: '#D0EDE8',
+  accentSoft: '#FFE2A8',
   dangerSoft: '#F8D9D6',
-  warningSoft: '#F8E8C4',
+  warningSoft: '#FFE8B8',
   nope: '#E4574C',
-  seen: '#E8A317',
+  seen: '#FFB300',
   match: '#FF4B78',
-  line: '#9AABBA',
+  line: '#D2C0A4',
+  scrim: 'rgba(0,0,0,0.55)',
+  stampLike: 'rgba(232, 148, 10, 0.88)',
+  stampNope: 'rgba(228, 87, 76, 0.88)',
+  stampSeen: 'rgba(255, 179, 0, 0.9)',
+  posterScrim: 'rgba(0,0,0,0.82)',
+  onPoster: '#FFFFFF',
+  onPosterMuted: 'rgba(255,255,255,0.78)',
+  shadow: '#000000',
+  cutWipe: '#000000',
 };
 
 export const darkColors: ColorTokens = {
-  bg: '#0B1117',
-  bgGlow: '#0C2420',
-  surface: '#15202B',
-  ink: '#F0F4F8',
-  inkMuted: '#9AA8B8',
-  accent: '#00A896',
-  accentDeep: '#2DD4BF',
-  cta: '#008F82',
-  onAccent: '#FFFFFF',
-  accentSoft: '#143530',
+  bg: '#0A0806',
+  bgGlow: '#2A1808',
+  surface: '#1C140E',
+  ink: '#FFF6EB',
+  inkMuted: '#B7A793',
+  accent: '#FFB020',
+  accentDeep: '#FFC933',
+  cta: '#E8940A',
+  onAccent: '#1A0E00',
+  accentSoft: '#3A240A',
   dangerSoft: '#3A1F1C',
-  warningSoft: '#3A2E14',
+  warningSoft: '#3A2A10',
   nope: '#E4574C',
-  seen: '#E8A317',
+  seen: '#FFB300',
   match: '#FF4B78',
-  line: '#3A4A5C',
+  line: '#4A3A2A',
+  scrim: 'rgba(0,0,0,0.55)',
+  stampLike: 'rgba(255, 176, 32, 0.88)',
+  stampNope: 'rgba(228, 87, 76, 0.88)',
+  stampSeen: 'rgba(255, 179, 0, 0.9)',
+  posterScrim: 'rgba(0,0,0,0.82)',
+  onPoster: '#FFFFFF',
+  onPosterMuted: 'rgba(255,255,255,0.78)',
+  shadow: '#000000',
+  cutWipe: '#000000',
 };
 
 export type ThemeMode = 'light' | 'dark' | 'system';

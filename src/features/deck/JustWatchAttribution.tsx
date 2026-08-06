@@ -1,8 +1,8 @@
-import { Linking, Pressable, StyleSheet, Text } from 'react-native';
+import { Linking, Pressable, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { useThemeColors } from '@/providers/PreferencesProvider';
-import { typography } from '@/theme/typography';
+import { AppText } from '@/src/ui';
 
 const JUSTWATCH_URL = 'https://www.justwatch.com';
 
@@ -18,9 +18,9 @@ export function JustWatchAttribution({ link }: { link?: string | null }) {
       }}
       style={styles.root}
     >
-      <Text style={[styles.text, { color: colors.inkMuted, fontFamily: typography.body }]}>
+      <AppText muted variant="label" color={colors.inkMuted} style={styles.text}>
         {t('justwatch.attribution')}
-      </Text>
+      </AppText>
     </Pressable>
   );
 }
@@ -30,7 +30,6 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   text: {
-    fontSize: 12,
     textDecorationLine: 'underline',
   },
 });

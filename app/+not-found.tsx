@@ -1,23 +1,27 @@
 import { Link, Stack } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { StyleSheet, View } from 'react-native';
 
 import { useThemeColors } from '@/providers/PreferencesProvider';
+import { AppText } from '@/src/ui';
+import { layout, space } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 
 export default function NotFoundScreen() {
+  const { t } = useTranslation();
   const colors = useThemeColors();
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Oops', headerShown: true }} />
+      <Stack.Screen options={{ title: t('common.notFoundTitle'), headerShown: true }} />
       <View style={[styles.root, { backgroundColor: colors.bg }]}>
-        <Text style={[styles.title, { color: colors.ink, fontFamily: typography.display }]}>
-          Screen not found
-        </Text>
-        <Link href="/(tabs)/explore" style={{ marginTop: 12 }}>
-          <Text style={{ color: colors.accent, fontFamily: typography.bodyMedium }}>
-            Go to Explore
-          </Text>
+        <AppText variant="title" style={styles.title}>
+          {t('common.notFoundBody')}
+        </AppText>
+        <Link href="/(tabs)/explore" style={styles.link}>
+          <AppText color={colors.accent} style={{ fontFamily: typography.bodyMedium }}>
+            {t('common.notFoundCta')}
+          </AppText>
         </Link>
       </View>
     </>
@@ -29,7 +33,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
+    padding: layout.screenPaddingX,
   },
-  title: { fontSize: 22 },
+  title: { textAlign: 'center' },
+  link: { marginTop: space.sm },
 });

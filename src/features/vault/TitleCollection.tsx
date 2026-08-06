@@ -7,7 +7,6 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from 'react-native';
 
@@ -22,6 +21,8 @@ import { posterUrl } from '@/src/features/tmdb/images';
 import type { Genre, WatchProvider } from '@/src/features/tmdb/types';
 import { RatingBottomSheet } from '@/src/features/vault/RatingBottomSheet';
 import { AppText } from '@/src/ui';
+import { radii } from '@/theme/radii';
+import { layout, space } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 
 const PAGE_SIZE = 20;
@@ -503,9 +504,13 @@ export function TitleCollection({
                         onPress={() => actions.onRestore?.(item.interaction)}
                         style={[styles.smallButton, { borderColor: colors.cta }]}
                       >
-                        <Text style={[styles.smallButtonText, { color: colors.cta, fontFamily: typography.bodyBold }]}>
+                        <AppText
+                          variant="label"
+                          color={colors.cta}
+                          style={{ fontFamily: typography.bodyBold }}
+                        >
                           {t('vault.restore')}
-                        </Text>
+                        </AppText>
                       </Pressable>
                     ) : null}
                     {actions?.onMoveToWatchlist ? (
@@ -513,9 +518,13 @@ export function TitleCollection({
                         onPress={() => actions.onMoveToWatchlist?.(item.interaction)}
                         style={[styles.smallButton, { borderColor: colors.cta }]}
                       >
-                        <Text style={[styles.smallButtonText, { color: colors.cta, fontFamily: typography.bodyBold }]}>
+                        <AppText
+                          variant="label"
+                          color={colors.cta}
+                          style={{ fontFamily: typography.bodyBold }}
+                        >
                           {t('vault.moveToWatchlist')}
-                        </Text>
+                        </AppText>
                       </Pressable>
                     ) : null}
                     {showRatingButtons && actions?.onRate ? (
@@ -523,13 +532,13 @@ export function TitleCollection({
                         onPress={() => setRatingTarget(item)}
                         style={[styles.smallButton, { borderColor: colors.seen, backgroundColor: colors.warningSoft }]}
                       >
-                        <Text style={[styles.smallButtonText, { color: colors.ink, fontFamily: typography.bodyBold }]}>
+                        <AppText variant="label" style={{ fontFamily: typography.bodyBold }}>
                           {item.interaction.action === 'seen'
                             ? item.interaction.rating
                               ? t('vault.ratingValue', { rating: item.interaction.rating })
                               : t('vault.rateCta')
                             : t('vault.markSeenCta')}
-                        </Text>
+                        </AppText>
                       </Pressable>
                     ) : null}
                   </View>
@@ -557,25 +566,25 @@ export function TitleCollection({
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, gap: 12, minHeight: 200 },
-  filters: { gap: 10 },
-  filterBlock: { gap: 6 },
-  chipRow: { gap: 8, paddingRight: 8 },
+  root: { flex: 1, gap: layout.stackGap, minHeight: 200 },
+  filters: { gap: space.xs + 2 },
+  filterBlock: { gap: space.xxs + 2 },
+  chipRow: { gap: layout.inlineGap, paddingRight: space.xs },
   list: { flex: 1 },
-  listContent: { gap: 10, paddingBottom: 24 },
-  emptyFiltered: { gap: 10, paddingVertical: 12 },
-  footerSpinner: { marginVertical: 12 },
+  listContent: { gap: space.xs + 2, paddingBottom: space.xl },
+  emptyFiltered: { gap: space.xs + 2, paddingVertical: space.sm },
+  footerSpinner: { marginVertical: space.sm },
   row: {
     borderWidth: 1,
-    borderRadius: 18,
-    padding: 10,
+    borderRadius: radii.xl,
+    padding: space.xs + 2,
     flexDirection: 'row',
-    gap: 12,
+    gap: space.sm,
   },
   poster: {
     width: 76,
     height: 112,
-    borderRadius: 12,
+    borderRadius: radii.md,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
@@ -587,12 +596,21 @@ const styles = StyleSheet.create({
   posterSpinner: {
     transform: [{ scale: 0.85 }],
   },
-  titleSkeletonBlock: { gap: 8, paddingVertical: 4 },
-  titleSkeleton: { height: 14, borderRadius: 6, width: '88%' },
-  titleSkeletonShort: { height: 12, borderRadius: 6, width: '52%' },
-  info: { flex: 1, gap: 5 },
-  metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 2 },
-  smallButton: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6 },
-  smallButtonText: { fontSize: 12 },
+  titleSkeletonBlock: { gap: layout.inlineGap, paddingVertical: space.xxs },
+  titleSkeleton: { height: 14, borderRadius: space.xxs + 2, width: '88%' },
+  titleSkeletonShort: { height: 12, borderRadius: space.xxs + 2, width: '52%' },
+  info: { flex: 1, gap: space.xxs + 1 },
+  metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: layout.inlineGap },
+  actions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: layout.inlineGap,
+    marginTop: 2,
+  },
+  smallButton: {
+    borderWidth: 1,
+    borderRadius: radii.md,
+    paddingHorizontal: space.xs + 2,
+    paddingVertical: space.xxs + 2,
+  },
 });

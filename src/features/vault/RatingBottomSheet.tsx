@@ -4,6 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useThemeColors } from '@/providers/PreferencesProvider';
 import { AppText, Button } from '@/src/ui';
+import { radii } from '@/theme/radii';
+import { space } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 
 const RATINGS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
@@ -29,14 +31,14 @@ export function RatingBottomSheet({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable style={styles.backdrop} onPress={onClose}>
+      <Pressable style={[styles.backdrop, { backgroundColor: colors.scrim }]} onPress={onClose}>
         <Pressable
           onPress={(event) => event.stopPropagation()}
           style={[
             styles.sheet,
             {
               backgroundColor: colors.surface,
-              paddingBottom: Math.max(insets.bottom, 16),
+              paddingBottom: Math.max(insets.bottom, space.md),
             },
           ]}
         >
@@ -87,30 +89,29 @@ export function RatingBottomSheet({
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
     justifyContent: 'flex-end',
   },
   sheet: {
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 24,
-    gap: 14,
+    borderTopLeftRadius: radii.xl + 4,
+    borderTopRightRadius: radii.xl + 4,
+    padding: space.xl,
+    gap: space.sm + 2,
   },
   centered: {
     textAlign: 'center',
     alignSelf: 'stretch',
   },
   grid: {
-    gap: 10,
+    gap: space.xs + 2,
   },
   row: {
     flexDirection: 'row',
-    gap: 10,
+    gap: space.xs + 2,
   },
   ratingCell: {
     flex: 1,
     aspectRatio: 1,
-    borderRadius: 14,
+    borderRadius: radii.lg,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',

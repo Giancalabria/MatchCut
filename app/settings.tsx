@@ -7,44 +7,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { AppLanguage } from '@/i18n';
 import { useAuth } from '@/providers/AuthProvider';
 import { usePreferences, useThemeColors } from '@/providers/PreferencesProvider';
-import { AppIcon, AppText, Button, ScreenHeader } from '@/src/ui';
+import { AppIcon, AppText, Button, Chip, ScreenHeader } from '@/src/ui';
+import { radii } from '@/theme/radii';
+import { layout, space } from '@/theme/spacing';
 import type { ThemeMode } from '@/theme/tokens';
 import { typography } from '@/theme/typography';
-
-function OptionRow({
-  label,
-  selected,
-  onPress,
-}: {
-  label: string;
-  selected: boolean;
-  onPress: () => void;
-}) {
-  const colors = useThemeColors();
-
-  return (
-    <Pressable
-      onPress={onPress}
-      style={[
-        styles.option,
-        {
-          backgroundColor: selected ? colors.accentSoft : colors.surface,
-          borderColor: selected ? colors.cta : colors.line,
-        },
-      ]}
-    >
-      <AppText
-        color={colors.ink}
-        style={{
-          fontFamily: selected ? typography.bodyBold : typography.body,
-          fontSize: 15,
-        }}
-      >
-        {label}
-      </AppText>
-    </Pressable>
-  );
-}
 
 function LinkRow({ label, detail, onPress }: { label: string; detail?: string; onPress: () => void }) {
   const colors = useThemeColors();
@@ -54,8 +21,10 @@ function LinkRow({ label, detail, onPress }: { label: string; detail?: string; o
       onPress={onPress}
       style={[styles.linkRow, { backgroundColor: colors.surface, borderColor: colors.line }]}
     >
-      <View style={{ flex: 1, gap: 2 }}>
-        <AppText style={{ fontFamily: typography.bodyMedium, fontSize: 15 }}>{label}</AppText>
+      <View style={styles.linkText}>
+        <AppText variant="body" style={{ fontFamily: typography.bodyMedium }}>
+          {label}
+        </AppText>
         {detail ? (
           <AppText variant="caption" muted>
             {detail}
@@ -104,8 +73,8 @@ export default function SettingsScreen() {
         styles.root,
         {
           backgroundColor: colors.bg,
-          paddingTop: Math.max(insets.top, 8),
-          paddingBottom: Math.max(insets.bottom, 32),
+          paddingTop: Math.max(insets.top, layout.safeTopMin),
+          paddingBottom: Math.max(insets.bottom, space.xxl),
         },
       ]}
     >
@@ -141,7 +110,7 @@ export default function SettingsScreen() {
       <AppText variant="section">{t('settings.language')}</AppText>
       <View style={styles.row}>
         {languages.map((item) => (
-          <OptionRow
+          <Chip
             key={item.id}
             label={item.label}
             selected={language === item.id}
@@ -153,7 +122,7 @@ export default function SettingsScreen() {
       <AppText variant="section">{t('settings.theme')}</AppText>
       <View style={styles.row}>
         {themes.map((item) => (
-          <OptionRow
+          <Chip
             key={item.id}
             label={item.label}
             selected={themeMode === item.id}
@@ -178,24 +147,19 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   root: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    gap: 12,
+    paddingHorizontal: layout.screenPaddingX,
+    gap: space.sm,
   },
-  row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  option: {
-    borderWidth: 1.5,
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-  },
+  row: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs },
+  linkText: { flex: 1, gap: 2 },
   linkRow: {
     borderWidth: 1,
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
+    borderRadius: radii.md,
+    paddingVertical: space.sm,
+    paddingHorizontal: space.sm + 2,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: space.xs,
   },
-  signOut: { marginTop: 20 },
+  signOut: { marginTop: space.lg },
 });

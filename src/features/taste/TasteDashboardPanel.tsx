@@ -19,6 +19,8 @@ import {
 } from '@/src/features/taste/tasteStats';
 import { BulkRatingSession } from '@/src/features/vault/BulkRatingSession';
 import { AppText, Button } from '@/src/ui';
+import { radii } from '@/theme/radii';
+import { layout, space } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 
 const EMPTY: TitleInteraction[] = [];
@@ -304,9 +306,7 @@ function StatCard({
         },
       ]}
     >
-      <AppText variant="display" style={styles.statValue}>
-        {value}
-      </AppText>
+      <AppText variant="display">{value}</AppText>
       <AppText variant="caption" muted>
         {label}
       </AppText>
@@ -316,34 +316,33 @@ function StatCard({
 
 const styles = StyleSheet.create({
   scroll: {
-    gap: 16,
-    paddingBottom: 24,
+    gap: space.md,
+    paddingBottom: space.xl,
   },
   center: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
+    padding: space.xl,
   },
-  hero: { gap: 6 },
+  hero: { gap: space.xxs + 2 },
   heroEyebrow: { textTransform: 'uppercase', letterSpacing: 0.6 },
-  statsRow: { flexDirection: 'row', gap: 10 },
+  statsRow: { flexDirection: 'row', gap: space.xs + 2 },
   statFlex: { flex: 1 },
   statCard: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: radii.lg,
     borderWidth: 1,
-    paddingVertical: 14,
-    paddingHorizontal: 10,
-    gap: 4,
+    paddingVertical: space.sm + 2,
+    paddingHorizontal: space.xs + 2,
+    gap: space.xxs,
     alignItems: 'center',
   },
-  statValue: { fontSize: 28, lineHeight: 32 },
   card: {
-    borderRadius: 18,
+    borderRadius: radii.xl,
     borderWidth: 1,
-    padding: 16,
-    gap: 12,
+    padding: space.md,
+    gap: layout.stackGap,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -352,26 +351,26 @@ const styles = StyleSheet.create({
   },
   barTrack: {
     height: 10,
-    borderRadius: 999,
+    borderRadius: radii.full,
     overflow: 'hidden',
   },
   barFill: {
     height: '100%',
-    borderRadius: 999,
+    borderRadius: radii.full,
   },
   histRow: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    gap: 4,
+    gap: space.xxs,
     minHeight: 72,
   },
   histCol: {
     flex: 1,
     alignItems: 'center',
-    gap: 4,
+    gap: space.xxs,
   },
   histBar: {
     width: '100%',
-    borderRadius: 4,
+    borderRadius: space.xxs,
   },
 });

@@ -12,7 +12,9 @@ Finalistas descartados (referencia): Quemos, Two-Shot, DeUna.
 
 ## Dirección visual
 
-Sala de proyección **oscura** (negro-cine + acento teal de “corte/splice”). Dark es el default de marca; light es preferencia opcional en Ajustes.
+Sala de proyección **oscura** (charcoal cálido + ámbar tungsteno de “lámpara / corte”). Dark es el default de marca; light es preferencia opcional en Ajustes.
+
+Paleta definitiva: **A1 Hot amber** (familia Tungsten).
 
 Evitar:
 
@@ -20,6 +22,7 @@ Evitar:
 - Cream + terracota + serif genérico
 - Layout tipo periódico (broadsheet)
 - Glow excesivo, pills `rounded-full` en exceso, sombras multicapa
+- Teal / “wellness SaaS” como acento de marca
 
 ## Tokens de color
 
@@ -29,57 +32,69 @@ Default de marca: **dark**. Centralizar en `theme/tokens.ts`. No hardcodear hex 
 
 | Token | Hex | Uso |
 |-------|-----|-----|
-| `--bg` | `#0B1117` | Fondo |
-| `--bg-glow` | `#0C2420` | Atmósfera / gradiente |
-| `--surface` | `#15202B` | Cards, sheets, inputs |
-| `--ink` | `#F0F4F8` | Texto principal |
-| `--ink-muted` | `#9AA8B8` | Texto secundario |
-| `--accent` | `#00A896` | Like, highlights, gestos |
-| `--accent-deep` | `#2DD4BF` | Highlight (no fill CTA con blanco) |
-| `--cta` | `#008F82` | Fill de botón primario (AA con onAccent) |
-| `--on-accent` | `#FFFFFF` | Texto sobre CTA |
-| `--accent-soft` | `#143530` | Chip/filtro activo sin texto blanco |
+| `--bg` | `#0A0806` | Fondo |
+| `--bg-glow` | `#2A1808` | Atmósfera / gradiente |
+| `--surface` | `#1C140E` | Cards, sheets, inputs |
+| `--ink` | `#FFF6EB` | Texto principal |
+| `--ink-muted` | `#B7A793` | Texto secundario |
+| `--accent` | `#FFB020` | Like, highlights, gestos |
+| `--accent-deep` | `#FFC933` | Highlight de texto (no fill CTA) |
+| `--cta` | `#E8940A` | Fill de botón primario |
+| `--on-accent` | `#1A0E00` | Texto sobre CTA (oscuro: contraste AA sobre ámbar) |
+| `--accent-soft` | `#3A240A` | Chip/filtro activo |
 | `--danger-soft` | `#3A1F1C` | Badge / fondo error suave |
-| `--warning-soft` | `#3A2E14` | Badge / “sin calificar” |
+| `--warning-soft` | `#3A2A10` | Badge / “sin calificar” |
 | `--nope` | `#E4574C` | Swipe izquierda / descartes |
-| `--seen` | `#E8A317` | Swipe arriba / “ya la vi” |
+| `--seen` | `#FFB300` | Swipe arriba / “ya la vi” |
 | `--match` | `#FF4B78` | Momento de match (acento puntual) |
-| `--line` | `#3A4A5C` | Separadores / bordes |
+| `--line` | `#4A3A2A` | Separadores / bordes |
 
 ### Light (secundario)
 
 | Token | Hex | Uso |
 |-------|-----|-----|
-| `--bg` | `#D8E0E8` | Fondo |
-| `--bg-glow` | `#C5E8E0` | Atmósfera / gradiente |
-| `--surface` | `#FFFFFF` | Cards, sheets |
-| `--ink` | `#0E151B` | Texto principal |
-| `--ink-muted` | `#4A5A68` | Texto secundario |
-| `--accent` | `#00A896` | Like, highlights |
-| `--accent-deep` / `--cta` | `#007F73` | Fill CTA (AA) |
+| `--bg` | `#F0E8DC` | Fondo |
+| `--bg-glow` | `#FFE7B8` | Atmósfera / gradiente |
+| `--surface` | `#FFFCF7` | Cards, sheets |
+| `--ink` | `#1A1208` | Texto principal |
+| `--ink-muted` | `#6A5A48` | Texto secundario |
+| `--accent` | `#E8940A` | Like, highlights |
+| `--accent-deep` / `--cta` | `#C97800` | Highlight / fill CTA (AA) |
 | `--on-accent` | `#FFFFFF` | Texto sobre CTA |
-| `--accent-soft` | `#D0EDE8` | Chip activo |
+| `--accent-soft` | `#FFE2A8` | Chip activo |
 | `--danger-soft` | `#F8D9D6` | Badge error |
-| `--warning-soft` | `#F8E8C4` | Badge warning |
+| `--warning-soft` | `#FFE8B8` | Badge warning |
 | `--nope` / `--seen` / `--match` | iguales al dark | |
-| `--line` | `#9AABBA` | Separadores |
+| `--line` | `#D2C0A4` | Separadores |
+
+Overlays (`scrim`, `stampLike`, `stampNope`, `stampSeen`, `posterScrim`, `onPoster`, `onPosterMuted`) también viven en `theme/tokens.ts` — no rgba sueltos en pantallas.
 
 ### Reglas de contraste
 
-- Botón primario: `cta` + `onAccent` (nunca `#00A896` + blanco).
-- Chips activos: `accentSoft` + `accentDeep`/`ink`, o fill `cta` + `onAccent`.
+- Botón primario: `cta` + `onAccent` (en dark, `onAccent` es ink oscuro; no blanco sobre ámbar claro).
+- Chips activos: `accentSoft` + borde `cta` + texto `ink` (no fill sólido de CTA).
+- Segment controls (Vault): track `surface` + segmento activo `cta` / `onAccent`.
 - No usar `accent` / `nope` / `seen` como color de body text sobre `bg`; preferir `ink` + indicador, o soft + `ink`.
 - Tab activa: tint `cta`.
+
+## Spacing y radios
+
+Centralizar en `theme/spacing.ts` y `theme/radii.ts`.
+
+- Padding de pantalla: `layout.screenPaddingX` (24); compacto en explore/deck: `screenPaddingXCompact` (20).
+- Gaps: `inlineGap` 8, `stackGap` 12, `sectionGap` 16.
+- Radios: `sm` 8, `md` 12 (botones/chips/inputs), `lg` 16 (cards), `xl` 20, `deck` 28 (cartas del mazo). Evitar `full` (999) salvo avatares y barras de progreso.
 
 ## Tipografía
 
 - **Display:** Syne — marca y títulos fuertes.
 - **UI/Body:** DM Sans — nunca Inter / Roboto / system como tipografía de marca.
-- Escala de roles en `theme/typography.ts`: display 28, title 22, section 17, body 16, caption 13, label 12.
+- Escala en `theme/typography.ts`: hero 34, display 28, title 22, section 17, body 16, caption 13, label 12.
+- UI vía `AppText` — no `fontSize` sueltos fuera de theme.
 
 ## Iconografía
 
-Set unificado vía Ionicons (`AppIcon` / `IconButton`). Outline inactivo, filled activo en tabs. Hit target ≥ 40×40; radio de icon button ~12 (evitar `rounded-full` en exceso).
+Set unificado vía Ionicons (`AppIcon` / `IconButton`). Outline inactivo, filled activo en tabs. Hit target ≥ 40×40; radio de icon button = `radii.md` (evitar `rounded-full` en exceso).
 
 ## Motion (mínimo de marca)
 

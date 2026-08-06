@@ -1,14 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  FlatList,
-  Image,
-  Pressable,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
+import { FlatList, Image, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/providers/AuthProvider';
@@ -18,7 +11,9 @@ import { MoodFilterFields } from '@/src/features/filters/MoodFilterFields';
 import { EMPTY_MOOD_FILTERS, isMoodActive, type MoodFilters } from '@/src/features/filters/types';
 import { posterUrl } from '@/src/features/tmdb/images';
 import type { MediaItem, MediaType } from '@/src/features/tmdb/types';
-import { AppText, Button, ScreenHeader } from '@/src/ui';
+import { AppText, Button, ScreenHeader, TextField } from '@/src/ui';
+import { radii } from '@/theme/radii';
+import { layout, space } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 
 function titleLabel(item: MediaItem): string {
@@ -81,24 +76,14 @@ export default function SearchScreen() {
     <SafeAreaView style={[styles.root, { backgroundColor: colors.bg }]}>
       <ScreenHeader title={t('search.title')} onBack={() => router.back()} />
 
-      <TextInput
+      <TextField
         value={query}
         onChangeText={setQuery}
         placeholder={t('search.placeholder')}
-        placeholderTextColor={colors.inkMuted}
         returnKeyType="search"
         onSubmitEditing={() => {
           void runSearch();
         }}
-        style={[
-          styles.input,
-          {
-            backgroundColor: colors.surface,
-            borderColor: colors.line,
-            color: colors.ink,
-            fontFamily: typography.body,
-          },
-        ]}
       />
 
       <Pressable
@@ -111,7 +96,7 @@ export default function SearchScreen() {
           },
         ]}
       >
-        <AppText style={{ fontFamily: typography.bodyBold, fontSize: 14 }}>
+        <AppText variant="caption" style={{ fontFamily: typography.bodyBold }}>
           {filtersOpen ? t('search.hideFilters') : t('search.optionalFilters')}
         </AppText>
       </Pressable>
@@ -156,10 +141,8 @@ export default function SearchScreen() {
               ) : (
                 <View style={[styles.poster, { backgroundColor: colors.line }]} />
               )}
-              <View style={{ flex: 1, gap: 4 }}>
-                <AppText style={{ fontFamily: typography.bodyBold, fontSize: 16 }}>
-                  {titleLabel(item)}
-                </AppText>
+              <View style={styles.rowInfo}>
+                <AppText variant="section">{titleLabel(item)}</AppText>
                 <AppText variant="caption" muted numberOfLines={2}>
                   {item.overview?.slice(0, 100) ?? ''}
                 </AppText>
@@ -173,30 +156,28 @@ export default function SearchScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, paddingHorizontal: 20, gap: 12 },
-  input: {
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
+  root: {
+    flex: 1,
+    paddingHorizontal: layout.screenPaddingXCompact,
+    gap: layout.stackGap,
   },
   filtersToggle: {
     borderWidth: 1,
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
+    borderRadius: radii.md,
+    paddingVertical: space.sm,
+    paddingHorizontal: space.sm + 2,
   },
   filtersBox: { maxHeight: 280 },
-  empty: { textAlign: 'center', marginTop: 8 },
-  list: { gap: 10, paddingBottom: 24 },
+  empty: { textAlign: 'center', marginTop: space.xs },
+  list: { gap: space.xs + 2, paddingBottom: space.xl },
   row: {
     flexDirection: 'row',
-    gap: 12,
+    gap: space.sm,
     borderWidth: 1,
-    borderRadius: 14,
-    padding: 10,
+    borderRadius: radii.lg,
+    padding: space.xs + 2,
     alignItems: 'center',
   },
-  poster: { width: 52, height: 78, borderRadius: 8 },
+  rowInfo: { flex: 1, gap: space.xxs },
+  poster: { width: 52, height: 78, borderRadius: radii.sm },
 });

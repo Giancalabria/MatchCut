@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '@/providers/AuthProvider';
 import { useThemeColors } from '@/providers/PreferencesProvider';
 import { STREAMING_PLATFORMS } from '@/src/features/onboarding/constants';
 import { SelectChip } from '@/src/features/onboarding/SelectChip';
-import { typography } from '@/theme/typography';
+import { AppText, Button } from '@/src/ui';
+import { layout, space } from '@/theme/spacing';
 
 export default function PlatformsScreen() {
   const { t } = useTranslation();
@@ -52,62 +53,47 @@ export default function PlatformsScreen() {
     <>
       <Stack.Screen options={{ title: isEdit ? t('settings.editPlatforms') : t('onboarding.platformsTitle') }} />
       <ScrollView contentContainerStyle={styles.content}>
-      {!isEdit ? (
-        <>
-          <Text style={[styles.title, { color: colors.ink, fontFamily: typography.display }]}>
-            {t('onboarding.platformsTitle')}
-          </Text>
-          <Text style={[styles.subtitle, { color: colors.inkMuted, fontFamily: typography.body }]}>
-            {t('onboarding.platformsSubtitle')}
-          </Text>
-        </>
-      ) : null}
+        {!isEdit ? (
+          <>
+            <AppText variant="display">{t('onboarding.platformsTitle')}</AppText>
+            <AppText muted style={styles.subtitle}>
+              {t('onboarding.platformsSubtitle')}
+            </AppText>
+          </>
+        ) : null}
 
-      <View style={styles.wrap}>
-        {STREAMING_PLATFORMS.map((item) => (
-          <SelectChip
-            key={item.id}
-            label={t(item.nameKey)}
-            selected={selected.includes(item.id)}
-            onPress={() => toggle(item.id)}
-          />
-        ))}
-      </View>
+        <View style={styles.wrap}>
+          {STREAMING_PLATFORMS.map((item) => (
+            <SelectChip
+              key={item.id}
+              label={t(item.nameKey)}
+              selected={selected.includes(item.id)}
+              onPress={() => toggle(item.id)}
+            />
+          ))}
+        </View>
 
-      {error ? (
-        <Text style={{ color: colors.nope, fontFamily: typography.body }}>{error}</Text>
-      ) : null}
+        {error ? <AppText color={colors.nope}>{error}</AppText> : null}
 
-      <Pressable
-        disabled={busy || selected.length === 0}
-        onPress={onContinue}
-        style={[
-          styles.cta,
-          {
-            backgroundColor: colors.cta,
-            opacity: busy || selected.length === 0 ? 0.5 : 1,
-          },
-        ]}
-      >
-        <Text style={[styles.ctaLabel, { fontFamily: typography.bodyBold, color: colors.onAccent }]}>
-          {isEdit ? t('common.save') : t('common.continue')}
-        </Text>
-      </Pressable>
-    </ScrollView>
+        <Button
+          label={isEdit ? t('common.save') : t('common.continue')}
+          loading={busy}
+          disabled={selected.length === 0}
+          onPress={onContinue}
+          style={styles.cta}
+        />
+      </ScrollView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { padding: 24, gap: 12, paddingBottom: 40 },
-  title: { fontSize: 28 },
-  subtitle: { fontSize: 16, lineHeight: 22, marginBottom: 8 },
-  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  cta: {
-    marginTop: 16,
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
+  content: {
+    padding: layout.screenPaddingX,
+    gap: space.sm,
+    paddingBottom: space.xxxl,
   },
-  ctaLabel: { fontSize: 16 },
+  subtitle: { marginBottom: space.xs },
+  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs },
+  cta: { marginTop: space.md },
 });

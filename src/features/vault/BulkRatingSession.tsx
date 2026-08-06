@@ -11,6 +11,8 @@ import { getDetails } from '@/src/features/tmdb/client';
 import { posterUrl } from '@/src/features/tmdb/images';
 import type { MediaDetails } from '@/src/features/tmdb/types';
 import { AppText, Button } from '@/src/ui';
+import { radii } from '@/theme/radii';
+import { layout, space } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 
 const RATINGS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
@@ -128,8 +130,8 @@ export function BulkRatingSession({
           styles.root,
           {
             backgroundColor: colors.bg,
-            paddingTop: Math.max(insets.top, 16),
-            paddingBottom: Math.max(insets.bottom, 16),
+            paddingTop: Math.max(insets.top, space.md),
+            paddingBottom: Math.max(insets.bottom, space.md),
           },
         ]}
       >
@@ -229,18 +231,18 @@ export function BulkRatingSession({
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    paddingHorizontal: 24,
-    gap: 16,
+    paddingHorizontal: layout.screenPaddingX,
+    gap: space.md,
   },
   center: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 16,
+    gap: space.md,
   },
   feedbackBlock: {
-    gap: 8,
-    paddingHorizontal: 12,
+    gap: layout.inlineGap,
+    paddingHorizontal: space.sm,
   },
   feedbackCenter: {
     textAlign: 'center',
@@ -254,12 +256,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 12,
+    gap: layout.stackGap,
   },
   poster: {
     width: 180,
     height: 270,
-    borderRadius: 16,
+    borderRadius: radii.lg,
   },
   title: {
     textAlign: 'center',
@@ -268,16 +270,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   grid: {
-    gap: 10,
+    gap: space.xs + 2,
   },
   row: {
     flexDirection: 'row',
-    gap: 10,
+    gap: space.xs + 2,
   },
   ratingCell: {
     flex: 1,
     aspectRatio: 1,
-    borderRadius: 14,
+    borderRadius: radii.lg,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',

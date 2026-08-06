@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useThemeColors } from '@/providers/PreferencesProvider';
 import { JustWatchAttribution } from '@/src/features/deck/JustWatchAttribution';
@@ -14,12 +13,13 @@ import { useExploreFilters } from '@/src/features/deck/useExploreFilters';
 import { MoodFilterFields } from '@/src/features/filters/MoodFilterFields';
 import { EMPTY_MOOD_FILTERS, isMoodActive } from '@/src/features/filters/types';
 import type { MediaItem } from '@/src/features/tmdb/types';
-import { AppText, Button, IconButton } from '@/src/ui';
+import { AppText, Button, IconButton, TabScreenHeader } from '@/src/ui';
+import { radii } from '@/theme/radii';
+import { layout, space } from '@/theme/spacing';
 
 export default function ExploreScreen() {
   const { t } = useTranslation();
   const colors = useThemeColors();
-  const insets = useSafeAreaInsets();
   const { mood, setMood, clearMood } = useExploreFilters();
   const { cards, error, loading, refresh, swipeLike, swipeNope, swipeSeen, unratedCount } = useDeck();
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -54,43 +54,45 @@ export default function ExploreScreen() {
   }
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.bg, paddingTop: Math.max(insets.top, 8) }]}>
+    <View style={[styles.root, { backgroundColor: colors.bg }]}>
       <LinearGradient colors={[colors.bg, colors.bgGlow]} style={StyleSheet.absoluteFill} />
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          {unratedCount > 0 ? (
-            <Pressable
-              onPress={openBulkRating}
-              style={[styles.badge, { backgroundColor: colors.warningSoft }]}
-              accessibilityRole="button"
-              accessibilityLabel={t('explore.unratedBadge', { count: unratedCount })}
-            >
-              <AppText variant="label" color={colors.ink}>
-                {t('explore.unratedBadge', { count: unratedCount })}
-              </AppText>
-            </Pressable>
-          ) : null}
-          {isMoodActive(mood) ? (
-            <View style={[styles.badge, { backgroundColor: colors.accentSoft }]}>
-              <AppText variant="label" color={colors.accentDeep}>
-                {t('explore.filtersActive')}
-              </AppText>
-            </View>
-          ) : null}
-        </View>
-        <View style={styles.headerActions}>
-          <IconButton
-            name="search"
-            onPress={() => router.push('/search')}
-            accessibilityLabel={t('search.title')}
-          />
-          <IconButton
-            name="filters"
-            onPress={openFilters}
-            active={isMoodActive(mood)}
-            accessibilityLabel={t('filters.title')}
-          />
-        </View>
+      <TabScreenHeader
+        right={
+          <View style={styles.headerActions}>
+            <IconButton
+              name="search"
+              onPress={() => router.push('/search')}
+              accessibilityLabel={t('search.title')}
+            />
+            <IconButton
+              name="filters"
+              onPress={openFilters}
+              active={isMoodActive(mood)}
+              accessibilityLabel={t('filters.title')}
+            />
+          </View>
+        }
+      />
+      <View style={styles.badges}>
+        {unratedCount > 0 ? (
+          <Pressable
+            onPress={openBulkRating}
+            style={[styles.badge, { backgroundColor: colors.warningSoft }]}
+            accessibilityRole="button"
+            accessibilityLabel={t('explore.unratedBadge', { count: unratedCount })}
+          >
+            <AppText variant="label" color={colors.ink}>
+              {t('explore.unratedBadge', { count: unratedCount })}
+            </AppText>
+          </Pressable>
+        ) : null}
+        {isMoodActive(mood) ? (
+          <View style={[styles.badge, { backgroundColor: colors.accentSoft }]}>
+            <AppText variant="label" color={colors.accentDeep}>
+              {t('explore.filtersActive')}
+            </AppText>
+          </View>
+        ) : null}
       </View>
 
       <View style={styles.deckWrap}>
@@ -173,30 +175,24 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingBottom: 12,
-    gap: 10,
+    paddingHorizontal: layout.screenPaddingXCompact,
+    paddingBottom: space.sm,
+    gap: space.xs + 2,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    minHeight: 44,
-  },
-  headerLeft: {
-    flex: 1,
+  badges: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: space.xs,
+    minHeight: 0,
   },
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: space.xs,
   },
   badge: {
-    borderRadius: 10,
-    paddingHorizontal: 10,
+    borderRadius: radii.sm + 2,
+    paddingHorizontal: space.xs + 2,
     paddingVertical: 7,
   },
   deckWrap: {
@@ -210,15 +206,20 @@ const styles = StyleSheet.create({
   empty: {
     flex: 1,
     borderWidth: 1,
-    borderRadius: 24,
+    borderRadius: radii.xl + 4,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 24,
-    gap: 12,
+    padding: layout.screenPaddingX,
+    gap: space.sm,
   },
   centerText: { textAlign: 'center' },
-  modalRoot: { flex: 1, padding: 24, paddingTop: 48, gap: 12 },
+  modalRoot: {
+    flex: 1,
+    padding: layout.screenPaddingX,
+    paddingTop: space.xxxl + space.xs,
+    gap: space.sm,
+  },
   modalFields: { flex: 1 },
-  modalActions: { flexDirection: 'row', gap: 8, paddingTop: 8 },
+  modalActions: { flexDirection: 'row', gap: space.xs, paddingTop: space.xs },
   modalButton: { flex: 1 },
 });

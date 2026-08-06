@@ -16,6 +16,7 @@ import type { RoomMatch } from '@/src/features/rooms/api';
 import { getDetails } from '@/src/features/tmdb/client';
 import { posterUrl } from '@/src/features/tmdb/images';
 import { AppText, Button } from '@/src/ui';
+import { space } from '@/theme/spacing';
 
 type MatchCelebrationProps = {
   match: RoomMatch | null;
@@ -85,18 +86,18 @@ export function MatchCelebration({ match, onClose, onOpenDetail }: MatchCelebrat
           ) : (
             <View style={[StyleSheet.absoluteFill, styles.poster, { backgroundColor: colors.surface }]} />
           )}
-          <LinearGradient colors={['transparent', 'rgba(0,0,0,0.88)']} style={styles.gradient}>
+          <LinearGradient colors={['transparent', colors.posterScrim]} style={styles.gradient}>
             <View style={[styles.matchEdge, { borderColor: colors.match }]}>
-              <AppText variant="display" color="#FFFFFF" style={styles.matchTitle}>
+              <AppText variant="display" color={colors.onPoster} style={styles.matchTitle}>
                 {t('match.title')}
               </AppText>
             </View>
             {title ? (
-              <AppText variant="title" color="#FFFFFF" style={styles.title} numberOfLines={2}>
+              <AppText variant="title" color={colors.onPoster} style={styles.title} numberOfLines={2}>
                 {title}
               </AppText>
             ) : null}
-            <AppText muted color="rgba(255,255,255,0.78)" style={styles.body}>
+            <AppText muted color={colors.onPosterMuted} style={styles.body}>
               {t('match.body')}
             </AppText>
             <View style={styles.actions}>
@@ -122,7 +123,7 @@ export function MatchCelebration({ match, onClose, onOpenDetail }: MatchCelebrat
 
         <Animated.View
           pointerEvents="none"
-          style={[StyleSheet.absoluteFill, { backgroundColor: '#000000' }, cutStyle]}
+          style={[StyleSheet.absoluteFill, { backgroundColor: colors.cutWipe }, cutStyle]}
         />
       </View>
     </Modal>
@@ -136,18 +137,18 @@ const styles = StyleSheet.create({
   gradient: {
     flex: 1,
     justifyContent: 'flex-end',
-    padding: 24,
-    paddingBottom: 40,
-    gap: 10,
+    padding: space.xl,
+    paddingBottom: space.xxxl,
+    gap: space.xs + 2,
   },
   matchEdge: {
     alignSelf: 'flex-start',
     borderLeftWidth: 3,
-    paddingLeft: 12,
+    paddingLeft: space.sm,
   },
   matchTitle: { fontSize: 34, lineHeight: 40 },
-  title: { marginTop: 4 },
-  body: { marginBottom: 8 },
-  actions: { flexDirection: 'row', gap: 10, marginTop: 8 },
+  title: { marginTop: space.xxs },
+  body: { marginBottom: space.xs },
+  actions: { flexDirection: 'row', gap: space.xs + 2, marginTop: space.xs },
   action: { flex: 1 },
 });

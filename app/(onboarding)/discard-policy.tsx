@@ -1,14 +1,7 @@
 import { useState } from 'react';
 import { Stack, router, useLocalSearchParams, type Href } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '@/providers/AuthProvider';
 import { useThemeColors } from '@/providers/PreferencesProvider';
@@ -19,7 +12,8 @@ import {
   DEFAULT_NOPE_POLICY,
 } from '@/src/features/onboarding/constants';
 import { SelectChip } from '@/src/features/onboarding/SelectChip';
-import { typography } from '@/theme/typography';
+import { AppText, Button, TextField } from '@/src/ui';
+import { layout, space } from '@/theme/spacing';
 
 const POLICIES: NopePolicy[] = ['cooldown', 'session', 'restore_only'];
 
@@ -78,102 +72,75 @@ export default function DiscardPolicyScreen() {
     <>
       <Stack.Screen options={{ title: isEdit ? t('settings.editDiscard') : t('onboarding.discardTitle') }} />
       <ScrollView contentContainerStyle={styles.content}>
-      {!isEdit ? (
-        <>
-          <Text style={[styles.title, { color: colors.ink, fontFamily: typography.display }]}>
-            {t('onboarding.discardTitle')}
-          </Text>
-          <Text style={[styles.subtitle, { color: colors.inkMuted, fontFamily: typography.body }]}>
-            {t('onboarding.discardSubtitle')}
-          </Text>
-        </>
-      ) : null}
+        {!isEdit ? (
+          <>
+            <AppText variant="display">{t('onboarding.discardTitle')}</AppText>
+            <AppText muted style={styles.subtitle}>
+              {t('onboarding.discardSubtitle')}
+            </AppText>
+          </>
+        ) : null}
 
-      <View style={styles.stack}>
-        {POLICIES.map((item) => (
-          <SelectChip
-            key={item}
-            label={t(`onboarding.policy.${item}`)}
-            selected={policy === item}
-            onPress={() => setPolicy(item)}
-          />
-        ))}
-      </View>
+        <View style={styles.stack}>
+          {POLICIES.map((item) => (
+            <SelectChip
+              key={item}
+              label={t(`onboarding.policy.${item}`)}
+              selected={policy === item}
+              onPress={() => setPolicy(item)}
+            />
+          ))}
+        </View>
 
-      {policy === 'cooldown' ? (
-        <>
-          <Text style={[styles.label, { color: colors.inkMuted, fontFamily: typography.bodyMedium }]}>
-            {t('onboarding.cooldownDays')}
-          </Text>
-          <View style={styles.wrap}>
-            {COOLDOWN_PRESETS.map((days) => (
-              <SelectChip
-                key={days}
-                label={t('onboarding.days', { count: days })}
-                selected={customDays === '' && cooldownDays === days}
-                onPress={() => {
-                  setCustomDays('');
-                  setCooldownDays(days);
-                }}
-              />
-            ))}
-          </View>
-          <TextInput
-            keyboardType="number-pad"
-            placeholder={t('onboarding.customDays')}
-            placeholderTextColor={colors.inkMuted}
-            value={customDays}
-            onChangeText={setCustomDays}
-            style={[
-              styles.input,
-              {
-                backgroundColor: colors.surface,
-                borderColor: colors.line,
-                color: colors.ink,
-                fontFamily: typography.body,
-              },
-            ]}
-          />
-        </>
-      ) : null}
+        {policy === 'cooldown' ? (
+          <>
+            <AppText variant="caption" muted style={styles.label}>
+              {t('onboarding.cooldownDays')}
+            </AppText>
+            <View style={styles.wrap}>
+              {COOLDOWN_PRESETS.map((days) => (
+                <SelectChip
+                  key={days}
+                  label={t('onboarding.days', { count: days })}
+                  selected={customDays === '' && cooldownDays === days}
+                  onPress={() => {
+                    setCustomDays('');
+                    setCooldownDays(days);
+                  }}
+                />
+              ))}
+            </View>
+            <TextField
+              keyboardType="number-pad"
+              placeholder={t('onboarding.customDays')}
+              value={customDays}
+              onChangeText={setCustomDays}
+            />
+          </>
+        ) : null}
 
-      {error ? (
-        <Text style={{ color: colors.nope, fontFamily: typography.body }}>{error}</Text>
-      ) : null}
+        {error ? <AppText color={colors.nope}>{error}</AppText> : null}
 
-      <Pressable
-        disabled={busy}
-        onPress={onFinish}
-        style={[styles.cta, { backgroundColor: colors.cta, opacity: busy ? 0.5 : 1 }]}
-      >
-        <Text style={[styles.ctaLabel, { fontFamily: typography.bodyBold, color: colors.onAccent }]}>
-          {isEdit ? t('common.save') : t('common.continue')}
-        </Text>
-      </Pressable>
-    </ScrollView>
+        <Button
+          label={isEdit ? t('common.save') : t('common.continue')}
+          loading={busy}
+          onPress={onFinish}
+          style={styles.cta}
+        />
+      </ScrollView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  content: { padding: 24, gap: 12, paddingBottom: 40 },
-  title: { fontSize: 28 },
-  subtitle: { fontSize: 16, lineHeight: 22, marginBottom: 8 },
-  stack: { gap: 8 },
-  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  label: { fontSize: 13, marginTop: 8 },
-  input: {
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
+  content: {
+    padding: layout.screenPaddingX,
+    gap: space.sm,
+    paddingBottom: space.xxxl,
   },
-  cta: {
-    marginTop: 16,
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  ctaLabel: { fontSize: 16 },
+  subtitle: { marginBottom: space.xs },
+  stack: { gap: space.xs },
+  wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs },
+  label: { marginTop: space.xs },
+  cta: { marginTop: space.md },
 });

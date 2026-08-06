@@ -13,14 +13,19 @@ import {
 import { getDetails } from '@/src/features/tmdb/client';
 import { posterUrl } from '@/src/features/tmdb/images';
 import { AppText, Button } from '@/src/ui';
-import { typography } from '@/theme/typography';
+import { radii } from '@/theme/radii';
+import { layout, space } from '@/theme/spacing';
 
 type SuggestionRow = TasteMatchSuggestion & {
   title: string;
   poster: string | null;
 };
 
-function peerLabel(pair: TasteMatchPair, index: number, t: (key: string, opts?: object) => string): string {
+function peerLabel(
+  pair: TasteMatchPair,
+  index: number,
+  t: (key: string, options?: Record<string, unknown>) => string,
+): string {
   if (pair.peer_display_name?.trim()) {
     return pair.peer_display_name.trim();
   }
@@ -141,7 +146,7 @@ export function RoomTasteMatch({ roomId, memberCount }: { roomId: string; member
         return (
           <View key={pair.peer_user_id} style={styles.pairBlock}>
             <View style={styles.pairHeader}>
-              <AppText style={{ fontFamily: typography.bodyBold, fontSize: 15 }}>{name}</AppText>
+              <AppText variant="section">{name}</AppText>
               {pair.score_percent != null ? (
                 <AppText variant="title" color={colors.accentDeep}>
                   {t('rooms.tasteMatchPercent', { percent: pair.score_percent })}
@@ -212,30 +217,30 @@ export function RoomTasteMatch({ roomId, memberCount }: { roomId: string; member
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 18,
+    borderRadius: radii.xl,
     borderWidth: 1,
-    padding: 16,
-    gap: 12,
+    padding: space.md,
+    gap: layout.stackGap,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 8,
+    gap: layout.inlineGap,
   },
   pairBlock: {
-    gap: 8,
-    paddingTop: 4,
+    gap: layout.inlineGap,
+    paddingTop: space.xxs,
   },
   pairHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 12,
+    gap: space.sm,
   },
-  suggestBlock: { gap: 8 },
-  suggestRow: { gap: 10, paddingVertical: 4 },
-  suggestItem: { width: 84, gap: 4 },
-  suggestPoster: { width: 84, height: 126, borderRadius: 10 },
+  suggestBlock: { gap: layout.inlineGap },
+  suggestRow: { gap: space.xs + 2, paddingVertical: space.xxs },
+  suggestItem: { width: 84, gap: space.xxs },
+  suggestPoster: { width: 84, height: 126, borderRadius: radii.md },
   suggestTitle: { minHeight: 28 },
 });

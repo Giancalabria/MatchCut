@@ -6,9 +6,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeColors } from '@/providers/PreferencesProvider';
 import type { MonthWrap } from '@/src/features/taste/monthWrap';
 import { AppText, Button } from '@/src/ui';
+import { radii } from '@/theme/radii';
+import { layout, space } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
 
-function monthLabel(t: (key: string, opts?: object) => string, month: number, year: number): string {
+function monthLabel(
+  t: (key: string, options?: Record<string, unknown>) => string,
+  month: number,
+  year: number,
+): string {
   return t(`taste.months.${month}`, { year });
 }
 
@@ -38,8 +44,8 @@ export function MonthWrapModal({
           styles.root,
           {
             backgroundColor: colors.bg,
-            paddingTop: Math.max(insets.top, 16),
-            paddingBottom: Math.max(insets.bottom, 16),
+            paddingTop: Math.max(insets.top, space.md),
+            paddingBottom: Math.max(insets.bottom, space.md),
           },
         ]}
       >
@@ -88,16 +94,16 @@ export function MonthWrapModal({
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    paddingHorizontal: 24,
-    gap: 16,
+    paddingHorizontal: layout.screenPaddingX,
+    gap: space.md,
   },
   closeHit: {
     alignSelf: 'flex-end',
-    padding: 8,
+    padding: space.xs,
   },
   hero: {
-    gap: 8,
-    paddingVertical: 12,
+    gap: layout.inlineGap,
+    paddingVertical: space.sm,
   },
   eyebrow: {
     textTransform: 'uppercase',
@@ -105,9 +111,9 @@ const styles = StyleSheet.create({
   },
   center: { textAlign: 'left' },
   card: {
-    borderRadius: 18,
+    borderRadius: radii.xl,
     borderWidth: 1,
-    padding: 16,
-    gap: 8,
+    padding: space.md,
+    gap: layout.inlineGap,
   },
 });

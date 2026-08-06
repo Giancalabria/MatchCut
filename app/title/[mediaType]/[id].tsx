@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
 
 import { useAuth } from '@/providers/AuthProvider';
@@ -11,8 +11,9 @@ import { JustWatchAttribution } from '@/src/features/deck/JustWatchAttribution';
 import { backdropUrl, posterUrl } from '@/src/features/tmdb/images';
 import { getDetails, getProviders, getVideos } from '@/src/features/tmdb/client';
 import type { MediaDetails, MediaType, MediaVideo, RegionWatchProviders } from '@/src/features/tmdb/types';
-import { ScreenHeader } from '@/src/ui';
-import { typography } from '@/theme/typography';
+import { AppText, Button, ScreenHeader } from '@/src/ui';
+import { radii } from '@/theme/radii';
+import { layout, space } from '@/theme/spacing';
 
 function isMediaType(value: unknown): value is MediaType {
   return value === 'movie' || value === 'tv';
@@ -91,7 +92,7 @@ export default function TitleDetailScreen() {
   if (loading) {
     return (
       <View style={[styles.center, { backgroundColor: colors.bg }]}>
-        <ActivityIndicator color={colors.accent} />
+        <ActivityIndicator color={colors.cta} />
       </View>
     );
   }
@@ -99,12 +100,10 @@ export default function TitleDetailScreen() {
   if (error || !details) {
     return (
       <View style={[styles.center, { backgroundColor: colors.bg }]}>
-        <Text style={[styles.error, { color: colors.nope, fontFamily: typography.bodyBold }]}>
+        <AppText color={colors.nope} style={styles.centerText}>
           {error ?? t('errors.generic')}
-        </Text>
-        <Pressable onPress={() => router.back()} style={[styles.button, { backgroundColor: colors.cta }]}>
-          <Text style={[styles.buttonText, { fontFamily: typography.bodyBold, color: colors.onAccent }]}>{t('common.back')}</Text>
-        </Pressable>
+        </AppText>
+        <Button label={t('common.back')} onPress={() => router.back()} />
       </View>
     );
   }
@@ -112,6 +111,12 @@ export default function TitleDetailScreen() {
   const flatrate = providers?.flatrate ?? [];
   const cast = details.credits?.cast.slice(0, 12) ?? [];
   const backdrop = backdropUrl(details.backdrop_path) ?? posterUrl(details.poster_path);
+  const year = (details.release_date ?? details.first_air_date)?.slice(0, 4) ?? null;
+  const rating =
+    typeof details.vote_average === 'number' && details.vote_average > 0
+      ? details.vote_average.toFixed(1)
+      : null;
+  const meta = [rating, year].filter(Boolean).join(' · ');
 
   return (
     <View style={[styles.root, { backgroundColor: colors.bg }]}>
@@ -119,98 +124,85 @@ export default function TitleDetailScreen() {
         <ScreenHeader showSafeTop onBack={() => router.back()} />
       </View>
       <ScrollView contentContainerStyle={styles.content}>
-      {backdrop ? <Image source={{ uri: backdrop }} style={styles.backdrop} contentFit="cover" /> : null}
+        {backdrop ? <Image source={{ uri: backdrop }} style={styles.backdrop} contentFit="cover" /> : null}
 
-      <Text style={[styles.title, { color: colors.ink, fontFamily: typography.display }]}>
-        {titleFor(details)}
-      </Text>
-      {(() => {
-        const year = (details.release_date ?? details.first_air_date)?.slice(0, 4) ?? null;
-        const rating =
-          typeof details.vote_average === 'number' && details.vote_average > 0
-            ? details.vote_average.toFixed(1)
-            : null;
-        const meta = [rating, year].filter(Boolean).join(' · ');
-        return meta ? (
-          <Text style={[styles.tagline, { color: colors.inkMuted, fontFamily: typography.bodyMedium }]}>
-            {meta}
-          </Text>
-        ) : null;
-      })()}
-      {details.tagline ? (
-        <Text style={[styles.tagline, { color: colors.inkMuted, fontFamily: typography.bodyMedium }]}>
-          {details.tagline}
-        </Text>
-      ) : null}
+        <AppText variant="hero">{titleFor(details)}</AppText>
+        {meta ? <AppText muted>{meta}</AppText> : null}
+        {details.tagline ? <AppText muted>{details.tagline}</AppText> : null}
 
-      <View style={styles.chips}>
-        {details.genres.map((genre) => (
-          <View key={genre.id} style={[styles.chip, { backgroundColor: colors.surface, borderColor: colors.line }]}>
-            <Text style={[styles.chipText, { color: colors.ink, fontFamily: typography.bodyMedium }]}>
-              {genre.name}
-            </Text>
-          </View>
-        ))}
-      </View>
-
-      <Text style={[styles.section, { color: colors.ink, fontFamily: typography.bodyBold }]}>
-        {t('detail.synopsis')}
-      </Text>
-      <Text style={[styles.overview, { color: colors.inkMuted, fontFamily: typography.body }]}>
-        {details.overview || t('detail.noSynopsis')}
-      </Text>
-
-      {key ? (
-        <>
-          <Text style={[styles.section, { color: colors.ink, fontFamily: typography.bodyBold }]}>
-            {t('detail.trailer')}
-          </Text>
-          <View style={styles.video}>
-            <YoutubePlayer height={210} videoId={key} />
-          </View>
-        </>
-      ) : null}
-
-      <Text style={[styles.section, { color: colors.ink, fontFamily: typography.bodyBold }]}>
-        {t('detail.providers')}
-      </Text>
-      {flatrate.length > 0 ? (
         <View style={styles.chips}>
-          {flatrate.map((provider) => (
-            <View key={provider.provider_id} style={[styles.chip, { backgroundColor: colors.surface, borderColor: colors.line }]}>
-              <Text style={[styles.chipText, { color: colors.ink, fontFamily: typography.bodyMedium }]}>
-                {provider.provider_name}
-              </Text>
+          {details.genres.map((genre) => (
+            <View
+              key={genre.id}
+              style={[styles.chip, { backgroundColor: colors.surface, borderColor: colors.line }]}
+            >
+              <AppText variant="caption">{genre.name}</AppText>
             </View>
           ))}
         </View>
-      ) : (
-        <Text style={[styles.overview, { color: colors.inkMuted, fontFamily: typography.body }]}>
-          {t('detail.noProviders')}
-        </Text>
-      )}
-      <JustWatchAttribution link={providers?.link} />
 
-      {cast.length > 0 ? (
-        <>
-          <Text style={[styles.section, { color: colors.ink, fontFamily: typography.bodyBold }]}>
-            {t('detail.cast')}
-          </Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.castRow}>
-            {cast.map((member) => (
-              <View key={`${member.id}-${member.character}`} style={[styles.castCard, { backgroundColor: colors.surface }]}>
-                <Image source={{ uri: posterUrl(member.profile_path, 'w185') ?? undefined }} style={styles.castImage} contentFit="cover" />
-                <Text style={[styles.castName, { color: colors.ink, fontFamily: typography.bodyBold }]} numberOfLines={2}>
-                  {member.name}
-                </Text>
-                <Text style={[styles.castRole, { color: colors.inkMuted, fontFamily: typography.body }]} numberOfLines={2}>
-                  {member.character}
-                </Text>
+        <AppText variant="section" style={styles.section}>
+          {t('detail.synopsis')}
+        </AppText>
+        <AppText muted>{details.overview || t('detail.noSynopsis')}</AppText>
+
+        {key ? (
+          <>
+            <AppText variant="section" style={styles.section}>
+              {t('detail.trailer')}
+            </AppText>
+            <View style={styles.video}>
+              <YoutubePlayer height={210} videoId={key} />
+            </View>
+          </>
+        ) : null}
+
+        <AppText variant="section" style={styles.section}>
+          {t('detail.providers')}
+        </AppText>
+        {flatrate.length > 0 ? (
+          <View style={styles.chips}>
+            {flatrate.map((provider) => (
+              <View
+                key={provider.provider_id}
+                style={[styles.chip, { backgroundColor: colors.surface, borderColor: colors.line }]}
+              >
+                <AppText variant="caption">{provider.provider_name}</AppText>
               </View>
             ))}
-          </ScrollView>
-        </>
-      ) : null}
+          </View>
+        ) : (
+          <AppText muted>{t('detail.noProviders')}</AppText>
+        )}
+        <JustWatchAttribution link={providers?.link} />
+
+        {cast.length > 0 ? (
+          <>
+            <AppText variant="section" style={styles.section}>
+              {t('detail.cast')}
+            </AppText>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.castRow}>
+              {cast.map((member) => (
+                <View
+                  key={`${member.id}-${member.character}`}
+                  style={[styles.castCard, { backgroundColor: colors.surface }]}
+                >
+                  <Image
+                    source={{ uri: posterUrl(member.profile_path, 'w185') ?? undefined }}
+                    style={[styles.castImage, { backgroundColor: colors.line }]}
+                    contentFit="cover"
+                  />
+                  <AppText variant="caption" numberOfLines={2}>
+                    {member.name}
+                  </AppText>
+                  <AppText variant="label" muted numberOfLines={2}>
+                    {member.character}
+                  </AppText>
+                </View>
+              ))}
+            </ScrollView>
+          </>
+        ) : null}
       </ScrollView>
     </View>
   );
@@ -218,24 +210,31 @@ export default function TitleDetailScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1 },
-  headerPad: { paddingHorizontal: 16 },
-  content: { padding: 20, paddingBottom: 40, gap: 12 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 16 },
-  backdrop: { height: 220, borderRadius: 24, overflow: 'hidden' },
-  title: { fontSize: 32 },
-  tagline: { fontSize: 15, lineHeight: 21 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },
-  chipText: { fontSize: 13 },
-  section: { fontSize: 19, marginTop: 10 },
-  overview: { fontSize: 15, lineHeight: 22 },
-  video: { borderRadius: 18, overflow: 'hidden' },
-  castRow: { gap: 10, paddingVertical: 4 },
-  castCard: { width: 112, borderRadius: 16, padding: 8, gap: 5 },
-  castImage: { height: 128, borderRadius: 12, backgroundColor: '#D4DDE6' },
-  castName: { fontSize: 13 },
-  castRole: { fontSize: 12 },
-  error: { fontSize: 16, textAlign: 'center' },
-  button: { borderRadius: 999, paddingHorizontal: 18, paddingVertical: 11 },
-  buttonText: { fontSize: 14 },
+  headerPad: { paddingHorizontal: space.md },
+  content: {
+    padding: layout.screenPaddingXCompact,
+    paddingBottom: space.xxxl,
+    gap: space.sm,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: layout.screenPaddingX,
+    gap: space.md,
+  },
+  centerText: { textAlign: 'center' },
+  backdrop: { height: 220, borderRadius: radii.xl + 4, overflow: 'hidden' },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs },
+  chip: {
+    borderWidth: 1,
+    borderRadius: radii.md,
+    paddingHorizontal: space.sm,
+    paddingVertical: space.xs,
+  },
+  section: { marginTop: space.xs + 2 },
+  video: { borderRadius: radii.lg + 2, overflow: 'hidden' },
+  castRow: { gap: space.xs + 2, paddingVertical: space.xxs },
+  castCard: { width: 112, borderRadius: radii.lg, padding: space.xs, gap: 5 },
+  castImage: { height: 128, borderRadius: radii.md },
 });
